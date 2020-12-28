@@ -77,7 +77,7 @@ namespace OvalDock
                         break;
 
                     case FileItem.TYPE_NAME:
-                        subItem = new FileItem(false, null, false, null, null, null);
+                        subItem = new FileItem(false, null, false, null, null, null, FileItemType.File);
                         break;
 
                     default: // This should NEVER happen.

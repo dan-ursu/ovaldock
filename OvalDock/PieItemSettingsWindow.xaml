@@ -10,7 +10,7 @@
         <RadioButton x:Name="radioButtonFile" Content="File" HorizontalAlignment="Left" Margin="16,37,0,0" VerticalAlignment="Top" Checked="radioButtonFile_Checked"/>
         <Label x:Name="labelType" Content="Type:" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top"/>
         <RadioButton x:Name="radioButtonFolder" Content="Folder" HorizontalAlignment="Left" Margin="16,52,0,0" VerticalAlignment="Top" Checked="radioButtonFolder_Checked"/>
-        <RadioButton x:Name="radioButtonUrl" Content="URL" HorizontalAlignment="Left" Margin="16,67,0,0" VerticalAlignment="Top" Checked="radioButtonUrl_Checked"/>
+        <RadioButton x:Name="radioButtonOther" Content="Other (ex: URL)" HorizontalAlignment="Left" Margin="16,67,0,0" VerticalAlignment="Top" Checked="radioButtonOther_Checked"/>
         <Label x:Name="labelTarget" Content="Target" HorizontalAlignment="Left" Margin="141,56,0,0" VerticalAlignment="Top"/>
         <TextBox x:Name="textBoxTarget" HorizontalAlignment="Left" Margin="246,58,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="298" Height="18" />
         <Button x:Name="buttonBrowseTarget" Content="Browse" HorizontalAlignment="Left" Margin="549,58,0,0" VerticalAlignment="Top" Width="60" Height="18" Click="buttonBrowseTarget_Click"/>

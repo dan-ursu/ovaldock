@@ -259,7 +259,7 @@ namespace OvalDock
                 (s, e) =>
                 {
                     // TODO: This feels inefficient, but PieItemSettingsWindow(null, ...) feels like something might break
-                    PieItem newItem = new FileItem(false, null, false, null, null, null);
+                    PieItem newItem = new FileItem(false, null, false, null, null, null, FileItemType.File);
                     PieItemSettingsWindow pieItemSettingsWindow = new PieItemSettingsWindow(newItem, currentFolder);
                     pieItemSettingsWindow.ShowDialog();
 

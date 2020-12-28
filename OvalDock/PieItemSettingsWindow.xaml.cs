@@ -1,6 +1,7 @@
 ﻿using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Text;
 using System.Windows;
 using System.Windows.Controls;
@@ -67,19 +68,34 @@ namespace OvalDock
                 checkBoxIcon_Unchecked(null, null);
             }
 
-            // TODO: Finish this as more types are added.
-            if (item is FileItem)
-            {
-                radioButtonFile.IsChecked = true;
-                radioButtonFile_Checked(null, null);
-
-                textBoxTarget.Text = (((FileItem)item).FilePath == null) ? "" : ((FileItem)item).FilePath;
-                textBoxArguments.Text = (((FileItem)item).Arguments == null) ? "" : ((FileItem)item).Arguments;
-            }
-            else if (item is PieFolderItem)
+            // Type-specific configuration.
+            if (item is PieFolderItem)
             {
                 radioButtonPieFolder.IsChecked = true;
                 radioButtonPieFolder_Checked(null, null);
+            }
+            else if(item is FileItem)
+            {
+                switch (((FileItem)item).Type)
+                {
+                    case FileItemType.File:
+                        radioButtonFile.IsChecked = true;
+                        radioButtonFile_Checked(null, null);
+                        break;
+
+                    case FileItemType.Folder:
+                        radioButtonFolder.IsChecked = true;
+                        radioButtonFolder_Checked(null, null);
+                        break;
+
+                    case FileItemType.Other:
+                        radioButtonOther.IsChecked = true;
+                        radioButtonOther_Checked(null, null);
+                        break;
+                }
+
+                textBoxTarget.Text = (((FileItem)item).FilePath == null) ? "" : ((FileItem)item).FilePath;
+                textBoxArguments.Text = (((FileItem)item).Arguments == null) ? "" : ((FileItem)item).Arguments;
             }
         }
 
@@ -125,7 +141,7 @@ namespace OvalDock
             textBoxArguments.Visibility = Visibility.Hidden;
         }
 
-        private void radioButtonUrl_Checked(object sender, RoutedEventArgs e)
+        private void radioButtonOther_Checked(object sender, RoutedEventArgs e)
         {
             labelTarget.Visibility = Visibility.Visible;
             textBoxTarget.Visibility = Visibility.Visible;
@@ -147,25 +163,26 @@ namespace OvalDock
 
         private void buttonSave_Click(object sender, RoutedEventArgs e)
         {
+            // TODO: Use nicer message boxes everywhere (not only in this class)?
+            if(checkBoxIcon.IsChecked.HasValue
+                && checkBoxIcon.IsChecked.Value == true
+                && !File.Exists(textBoxIcon.Text))
+            {
+                MessageBox.Show("Icon does not exist");
+                return;
+            }
+
+            //TODO: Might be worth being consistent with HasValue and != null
+
             // TODO: Creating a new object every time even if the type doesn't change is a bit clunky. Rewrite?
 
             // TODO: Warn about switching from a PieFolderItem to a non-PieFolderItem.
             //       Everything in that folder will be lost!
             //
             // TODO: Check to make sure nothing gets saved as null. Might cause some problems? Ex: null FileItem.Arguments?
-            if (radioButtonFile.IsChecked != null && radioButtonFile.IsChecked.Value == true)
-            {
-                // TODO: Handle arguments in FileItem
-                NewPieItem = new FileItem(
-                    checkBoxName.IsChecked == null ? false : checkBoxName.IsChecked.Value,
-                    textBoxName.Text,
-                    checkBoxIcon.IsChecked == null ? false : checkBoxIcon.IsChecked.Value,
-                    textBoxIcon.Text,
-                    textBoxTarget.Text,
-                    textBoxArguments.Text
-                );
-            }
-            else if (radioButtonPieFolder.IsChecked != null && radioButtonPieFolder.IsChecked.Value == true)
+                        
+            // PieFolderItem is handled separately
+            if (radioButtonPieFolder.IsChecked != null && radioButtonPieFolder.IsChecked.Value == true)
             {
                 NewPieItem = new PieFolderItem(
                     checkBoxName.IsChecked == null ? false : checkBoxName.IsChecked.Value,
@@ -184,8 +201,51 @@ namespace OvalDock
                     }
                 }
             }
+            else // Everything else uses the FileItem class
+            {
+                // Placeholder value for now.
+                FileItemType type = FileItemType.File;
 
-            // TODO: Check if all inputs actually make sense. Ex: for "File" type, if the file exists, and is a file, not a folder, etc...
+                if(radioButtonFile.IsChecked.HasValue
+                    && radioButtonFile.IsChecked == true)
+                {
+                    if (!File.Exists(textBoxTarget.Text))
+                    {
+                        MessageBox.Show("Target file does not exist.");
+                        return;
+                    }
+
+                    type = FileItemType.File;
+                }
+
+                if(radioButtonFolder.IsChecked.HasValue
+                    && radioButtonFolder.IsChecked == true)
+                {
+                    if (!Directory.Exists(textBoxTarget.Text))
+                    {
+                        MessageBox.Show("Target folder does not exist.");
+                        return;
+                    }
+
+                    type = FileItemType.Folder;
+                }
+
+                if (radioButtonOther.IsChecked.HasValue
+                    && radioButtonOther.IsChecked == true)
+                {
+                    type = FileItemType.Other;
+                }
+
+                NewPieItem = new FileItem(
+                    checkBoxName.IsChecked == null ? false : checkBoxName.IsChecked.Value,
+                    textBoxName.Text,
+                    checkBoxIcon.IsChecked == null ? false : checkBoxIcon.IsChecked.Value,
+                    textBoxIcon.Text,
+                    textBoxTarget.Text,
+                    textBoxArguments.Text,
+                    type
+                );
+            }            
 
             Saved = true;
 
