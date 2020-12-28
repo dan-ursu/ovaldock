@@ -39,9 +39,9 @@ namespace OvalDock
             PrevFolder = prevFolder;
         }
 
-        public override void LeftClick()
+        public override void LeftClick(MainWindow mainWindow)
         {
-            MainWindow.TheMainWindow.SwitchToFolder(this);
+            mainWindow.SwitchToFolder(this);
         }
 
         public override void SaveConfig(XmlElement element)

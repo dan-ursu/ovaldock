@@ -56,13 +56,8 @@ namespace OvalDock
         // .csproj was modified to use Windows Forms as well.
         private System.Windows.Forms.NotifyIcon notifyIcon = new System.Windows.Forms.NotifyIcon();
 
-        // TODO: This is horribly hacky. Work around this!
-        public static MainWindow TheMainWindow { get; private set; }
-
         public MainWindow()
         {
-            TheMainWindow = this;
-
             InitializeComponent();
 
             // TODO: Organize this better? Or rename LoadConfig() to LoadProgramConfig()?
@@ -192,12 +187,20 @@ namespace OvalDock
             notifyIcon.ContextMenuStrip = contextMenu;
         }
 
-        private void ToggleVisibility()
+        public void ToggleVisibility()
         {
             switch (Visibility)
             {
                 case Visibility.Visible:
                     Visibility = Visibility.Hidden;
+
+                    // TODO: Normally, I would include a reset to root folder command here.
+                    //       HOWEVER, it seems that the window will only get redrawn when it is visibile,
+                    //       causing the old version to flash on screen for a split second.
+                    //       Should figure out a way to force it to refresh while hidden.
+
+                    // SwitchToFolder(rootFolder);
+
                     break;
 
                 case Visibility.Hidden:
@@ -369,7 +372,7 @@ namespace OvalDock
             itemButton.Click +=
                 (s, e) =>
                 {
-                    pieItem.LeftClick();
+                    pieItem.LeftClick(this);
                 };
 
             itemButton.MouseEnter +=

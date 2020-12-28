@@ -111,7 +111,7 @@ namespace OvalDock
         }
 
         // This is again specific on type of item.
-        public abstract void LeftClick();
+        public abstract void LeftClick(MainWindow mainWindow);
 
         public void ClearIconCache()
         {

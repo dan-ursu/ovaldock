@@ -92,12 +92,18 @@ namespace OvalDock
             //TODO: Handle the file not existing somehow?
         }
 
-        public override void LeftClick()
+        public override void LeftClick(MainWindow mainWindow)
         {
-            if (!File.Exists(FilePath))
+            if (Type == FileItemType.File && !File.Exists(FilePath))
             {
-                // MessageBox.Show("File does not exist.");
-                // return;
+                MessageBox.Show("File does not exist.");
+                return;
+            }
+
+            if(Type == FileItemType.Folder && !Directory.Exists(FilePath))
+            {
+                MessageBox.Show("Folder does not exist.");
+                return;
             }
 
             try
@@ -123,6 +129,8 @@ namespace OvalDock
 
                     Process.Start(processStartInfo);
                 }
+
+                mainWindow.ToggleVisibility();
             }
             catch (Exception e)
             {
