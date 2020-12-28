@@ -481,7 +481,7 @@ namespace OvalDock
             {
                 if (currentFolder.PrevFolder == null)
                 {
-                    Close();
+                    ToggleVisibility();
                 }
                 else
                 {
