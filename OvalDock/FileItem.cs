@@ -10,8 +10,19 @@ using System.Xml;
 
 namespace OvalDock
 {
+    // Used for loading the settings window.
+    // TODO: Could probably use for other things too.
+    public enum FileItemType
+    {
+        File,
+        Folder,
+        Other
+    }
+
     class FileItem : PieItem
     {
+        public FileItemType Type { get; private set; }
+
         public string FilePath { get; private set; }
 
         public string Arguments { get; private set; }
@@ -72,26 +83,33 @@ namespace OvalDock
         public const string TYPE_NAME = "FileItem";
         public override string TypeName { get { return TYPE_NAME; } }
 
-        public FileItem(bool customName, string label, bool customIcon, string iconPath, string filePath, string arguments) : base(customName, label, customIcon, iconPath)
+        public FileItem(bool customName, string label, bool customIcon, string iconPath, string filePath, string arguments, FileItemType type) : base(customName, label, customIcon, iconPath)
         {
             FilePath = filePath;
             Arguments = arguments;
+            Type = type;
 
             //TODO: Handle the file not existing somehow?
         }
 
-        public override void LeftClick()
+        public override void LeftClick(MainWindow mainWindow)
         {
-            if (!File.Exists(FilePath))
+            if (Type == FileItemType.File && !File.Exists(FilePath))
             {
                 MessageBox.Show("File does not exist.");
+                return;
+            }
+
+            if(Type == FileItemType.Folder && !Directory.Exists(FilePath))
+            {
+                MessageBox.Show("Folder does not exist.");
                 return;
             }
 
             try
             {
                 // TODO: Are there other executable file types? .msi? .com?
-                if (FilePath.EndsWith(".exe"))
+                if (File.Exists(FilePath) && FilePath.EndsWith(".exe"))
                 {
                     Process.Start(FilePath);
                 }
@@ -103,14 +121,16 @@ namespace OvalDock
                     // The default is true on .NET Framework apps and false on .NET Core apps.
 
                     //TODO: IMPLEMENT ARGUMENTS!
-                    ProcessStartInfo processStartInfo = new ProcessStartInfo
-                    {
-                        FileName = this.FilePath,
-                        UseShellExecute = true
-                    };
+                    ProcessStartInfo processStartInfo = new ProcessStartInfo();
+
+                    processStartInfo.FileName = FilePath;
+                    processStartInfo.UseShellExecute = true;
+                    processStartInfo.Arguments = Arguments;
 
                     Process.Start(processStartInfo);
                 }
+
+                mainWindow.ToggleVisibility();
             }
             catch (Exception e)
             {
@@ -124,6 +144,21 @@ namespace OvalDock
 
             element.SetAttribute("FilePath", FilePath == null ? "" : FilePath);
             element.SetAttribute("Arguments", Arguments == null ? "" : Arguments);
+
+            switch(Type)
+            {
+                case FileItemType.File:
+                    element.SetAttribute("Type", "File");
+                    break;
+
+                case FileItemType.Folder:
+                    element.SetAttribute("Type", "Folder");
+                    break;
+
+                case FileItemType.Other:
+                    element.SetAttribute("Type", "Other");
+                    break;
+            }
         }
 
         public override void LoadConfig(XmlElement element)
@@ -132,6 +167,21 @@ namespace OvalDock
 
             FilePath = element.GetAttribute("FilePath");
             Arguments = element.GetAttribute("Arguments");
+
+            switch(element.GetAttribute("Type"))
+            {
+                case "File":
+                    Type = FileItemType.File;
+                    break;
+
+                case "Folder":
+                    Type = FileItemType.Folder;
+                    break;
+
+                case "Other":
+                    Type = FileItemType.Other;
+                    break;
+            }
         }
     }
 }

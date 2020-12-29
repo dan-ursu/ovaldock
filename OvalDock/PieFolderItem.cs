@@ -39,9 +39,9 @@ namespace OvalDock
             PrevFolder = prevFolder;
         }
 
-        public override void LeftClick()
+        public override void LeftClick(MainWindow mainWindow)
         {
-            MainWindow.TheMainWindow.SwitchToFolder(this);
+            mainWindow.SwitchToFolder(this);
         }
 
         public override void SaveConfig(XmlElement element)
@@ -77,7 +77,7 @@ namespace OvalDock
                         break;
 
                     case FileItem.TYPE_NAME:
-                        subItem = new FileItem(false, null, false, null, null, null);
+                        subItem = new FileItem(false, null, false, null, null, null, FileItemType.File);
                         break;
 
                     default: // This should NEVER happen.
