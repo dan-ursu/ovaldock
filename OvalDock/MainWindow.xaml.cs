@@ -42,6 +42,7 @@ namespace OvalDock
 
 
         public System.Windows.Controls.Image InnerDisk { get; private set; }
+        public System.Windows.Controls.Image OuterDisk { get; private set; }
 
         private bool dragged = false;
 
@@ -249,23 +250,25 @@ namespace OvalDock
 
         private void CreateOuterDisk()
         {
-            var outerDisk = new System.Windows.Controls.Image();
+            OuterDisk = new System.Windows.Controls.Image();
 
             //outerDisk.Source = new BitmapImage(new Uri(outerDiskImagePath));
-            outerDisk.Source = Util.ToBitmapImage(new Bitmap(Config.OuterDiskImagePath));
-            outerDisk.Width = 2 * Config.OuterRadius;
-            outerDisk.Height = 2 * Config.OuterRadius;
+            OuterDisk.Source = Util.ToBitmapImage(new Bitmap(Config.OuterDiskImagePath));
+            OuterDisk.Width = 2 * Config.OuterRadius;
+            OuterDisk.Height = 2 * Config.OuterRadius;
 
             //var margin = new Thickness();
             //margin.Left = 0;
             //margin.Top = 0;
             //outerDisk.Margin = margin;
 
-            outerDisk.HorizontalAlignment = HorizontalAlignment.Center;
-            outerDisk.VerticalAlignment = VerticalAlignment.Center;
+            OuterDisk.Opacity = Config.OuterDiskNormalOpacity;
+
+            OuterDisk.HorizontalAlignment = HorizontalAlignment.Center;
+            OuterDisk.VerticalAlignment = VerticalAlignment.Center;
 
             //outerDisk.MouseRightButtonUp += OuterDisk_MouseRightButtonUp;
-            outerDisk.MouseLeftButtonDown += OuterDisk_MouseLeftButtonDown;
+            OuterDisk.MouseLeftButtonDown += OuterDisk_MouseLeftButtonDown;
 
             // Create the context menu
             MenuItem addMenuItem = new MenuItem();
@@ -286,10 +289,10 @@ namespace OvalDock
                     }
                 };
 
-            outerDisk.ContextMenu = new ContextMenu();
-            outerDisk.ContextMenu.Items.Add(addMenuItem);
+            OuterDisk.ContextMenu = new ContextMenu();
+            OuterDisk.ContextMenu.Items.Add(addMenuItem);
 
-            mainGrid.Children.Add(outerDisk);
+            mainGrid.Children.Add(OuterDisk);
         }
 
         private void CreateInnerDisk()
@@ -482,6 +485,7 @@ namespace OvalDock
         private void InnerDisk_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
             InnerDisk.Opacity = Config.InnerDiskMouseDownOpacity;
+            OuterDisk.Opacity = Config.OuterDiskMouseDownOpacity;
 
             dragged = false;
 
@@ -492,6 +496,7 @@ namespace OvalDock
             DragMove();
 
             InnerDisk.Opacity = Config.InnerDiskNormalOpacity;
+            OuterDisk.Opacity = Config.OuterDiskNormalOpacity;
 
             // Hacky way to handle mouse click on the inner disk.
             if (!dragged)
@@ -511,7 +516,13 @@ namespace OvalDock
 
         private void OuterDisk_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
+            InnerDisk.Opacity = Config.InnerDiskMouseDownOpacity;
+            OuterDisk.Opacity = Config.OuterDiskMouseDownOpacity;
+
             DragMove();
+
+            InnerDisk.Opacity = Config.InnerDiskNormalOpacity;
+            OuterDisk.Opacity = Config.OuterDiskNormalOpacity;
         }
     }
 }

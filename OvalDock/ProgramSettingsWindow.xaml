@@ -26,7 +26,18 @@
             </TabItem>
             <TabItem x:Name="tabOuterDisk" Header="Outer Disk">
                 <Grid Background="#FFE5E5E5">
-                    <TextBox x:Name="textBox1" HorizontalAlignment="Left" Margin="119,50,0,0" Text="TextBox" TextWrapping="Wrap" VerticalAlignment="Top" Width="120"/>
+                    <Label x:Name="labelOuterDiskIcon" Content="Outer disk icon" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top"/>
+                    <TextBox x:Name="textBoxOuterDiskIcon" HorizontalAlignment="Left" Margin="110,14,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="428" IsEnabled="False" Height="18"/>
+                    <Button x:Name="buttonBrowseOuterDiskIcon" Content="Browse" HorizontalAlignment="Left" Margin="543,14,0,0" VerticalAlignment="Top" Height="18" Click="buttonBrowseOuterDiskIcon_Click"/>
+                    <Label x:Name="labelOuterDiskRadius" Content="Radius" HorizontalAlignment="Left" Margin="10,37,0,0" VerticalAlignment="Top"/>
+                    <Label x:Name="labelOuterDiskNormalOpacity" Content="Normal opacity" HorizontalAlignment="Left" Margin="10,63,0,0" VerticalAlignment="Top"/>
+                    <Label x:Name="labelOuterDiskMouseDownOpacity" Content="Click opacity" HorizontalAlignment="Left" Margin="10,89,0,0" VerticalAlignment="Top"/>
+                    <Slider x:Name="sliderOuterDiskNormalOpacity" HorizontalAlignment="Left" Margin="110,67,0,0" VerticalAlignment="Top" Width="433" Minimum="0.01" Maximum="1" LargeChange="0.1" SmallChange="0.01" ValueChanged="sliderOuterDiskNormalOpacity_ValueChanged"/>
+                    <Slider x:Name="sliderOuterDiskRadius" HorizontalAlignment="Left" Margin="110,41,0,0" VerticalAlignment="Top" Width="433" Minimum="1" Maximum="200" SmallChange="1" LargeChange="10" ValueChanged="sliderOuterDiskRadius_ValueChanged"/>
+                    <Slider x:Name="sliderOuterDiskMouseDownOpacity" HorizontalAlignment="Left" Margin="110,93,0,0" VerticalAlignment="Top" Width="433" Minimum="0.01" Maximum="1" SmallChange="0.01" LargeChange="0.1" ValueChanged="sliderOuterDiskMouseDownOpacity_ValueChanged"/>
+                    <Label x:Name="labelOuterDiskRadiusValue" Content="Label" HorizontalAlignment="Left" Margin="543,37,0,0" VerticalAlignment="Top"/>
+                    <Label x:Name="labelOuterDiskNormalOpacityValue" Content="Label" HorizontalAlignment="Left" Margin="543,63,0,0" VerticalAlignment="Top"/>
+                    <Label x:Name="labelOuterDiskMouseDownOpacityValue" Content="Label" HorizontalAlignment="Left" Margin="543,89,0,0" VerticalAlignment="Top"/>
                 </Grid>
             </TabItem>
         </TabControl>

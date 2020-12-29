@@ -41,6 +41,16 @@ namespace OvalDock
             labelInnerDiskMouseDownOpacityValue.Content = Config.InnerDiskMouseDownOpacity.ToString("0.##");
 
             textBoxInnerDiskIcon.Text = Config.InnerDiskImagePath;
+
+            sliderOuterDiskRadius.Value           = Config.OuterRadius;
+            sliderOuterDiskNormalOpacity.Value    = Config.OuterDiskNormalOpacity;
+            sliderOuterDiskMouseDownOpacity.Value = Config.OuterDiskMouseDownOpacity;
+
+            labelOuterDiskRadiusValue.Content           = Config.OuterRadius.ToString("0");
+            labelOuterDiskNormalOpacityValue.Content    = Config.OuterDiskNormalOpacity.ToString("0.##");
+            labelOuterDiskMouseDownOpacityValue.Content = Config.OuterDiskMouseDownOpacity.ToString("0.##");
+
+            textBoxOuterDiskIcon.Text = Config.OuterDiskImagePath;
         }
 
         private void sliderInnerDiskRadius_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
@@ -114,6 +124,68 @@ namespace OvalDock
                 {
                     TheMainWindow.RefreshFolder();
                 }
+            }
+        }
+
+        private void sliderOuterDiskRadius_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            if (TheMainWindow == null)
+                return;
+
+            Config.OuterRadius = sliderOuterDiskRadius.Value;
+
+            labelOuterDiskRadiusValue.Content = Config.OuterRadius.ToString("0");
+
+            TheMainWindow.OuterDisk.Width = 2 * Config.OuterRadius;
+            TheMainWindow.OuterDisk.Height = 2 * Config.OuterRadius;
+        }
+
+        private void sliderOuterDiskNormalOpacity_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            if (TheMainWindow == null)
+                return;
+
+            Config.OuterDiskNormalOpacity = sliderOuterDiskNormalOpacity.Value;
+
+            labelOuterDiskNormalOpacityValue.Content = Config.OuterDiskNormalOpacity.ToString("0.##");
+
+            TheMainWindow.OuterDisk.Opacity = Config.OuterDiskNormalOpacity;
+        }
+
+        private void sliderOuterDiskMouseDownOpacity_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            if (TheMainWindow == null)
+                return;
+
+            Config.OuterDiskMouseDownOpacity = sliderOuterDiskMouseDownOpacity.Value;
+
+            labelOuterDiskMouseDownOpacityValue.Content = Config.OuterDiskMouseDownOpacity.ToString("0.##");
+        }
+
+        private void buttonBrowseOuterDiskIcon_Click(object sender, RoutedEventArgs e)
+        {
+            // TODO: Check for valid extension? Or nah?
+            OpenFileDialog openFileDialog = new OpenFileDialog();
+            if (openFileDialog.ShowDialog() == true)
+            {
+                Bitmap outerDiskBitmap;
+
+                try
+                {
+                    outerDiskBitmap = new Bitmap(openFileDialog.FileName);
+                }
+                catch (Exception exception)
+                {
+                    MessageBox.Show("Could not load icon.");
+                    return;
+                }
+
+                // Valid image from here on.
+                Config.OuterDiskImagePath = openFileDialog.FileName;
+
+                TheMainWindow.OuterDisk.Source = Util.ToBitmapImage(outerDiskBitmap);
+
+                textBoxOuterDiskIcon.Text = Config.OuterDiskImagePath;
             }
         }
     }

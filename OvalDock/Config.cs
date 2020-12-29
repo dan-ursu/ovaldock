@@ -13,16 +13,14 @@ namespace OvalDock
         public static string ProgramName { get; private set; }
 
         public static string InnerDiskImagePath { get; set; }
-
         public static double InnerRadius { get; set; }
-
         public static double InnerDiskNormalOpacity { get; set; }
-
         public static double InnerDiskMouseDownOpacity { get; set; }
 
-        public static int OuterRadius { get; private set; }
-
-        public static string OuterDiskImagePath { get; private set; }
+        public static string OuterDiskImagePath { get; set; }
+        public static double OuterRadius { get; set; }
+        public static double OuterDiskNormalOpacity { get; set; }
+        public static double OuterDiskMouseDownOpacity { get; set; }
 
         public static Bitmap PieFolderDefaultIcon { get; private set; }
 
@@ -55,13 +53,16 @@ namespace OvalDock
             InnerDiskNormalOpacity = 1.0;
             InnerDiskMouseDownOpacity = 0.5;
 
+            OuterDiskImagePath = @".\System\Background\circle.png";
             OuterRadius = 200;
+            OuterDiskNormalOpacity = 1.0;
+            OuterDiskMouseDownOpacity = 0.5;
+
             PieItemSize = 50;
             PieItemLabelPadding = 50;
             PieItemLabelSize = 20;
             PieItemRadiusFromCenter = 325;
-
-            OuterDiskImagePath = @".\System\Background\circle.png";
+                        
             PieFolderDefaultIcon = new Bitmap(@".\System\Icons\My Documents.png");
             PieFileNotFoundIcon = new Bitmap(@".\system\Icons\firewire.png");
 
