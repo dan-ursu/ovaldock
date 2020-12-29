@@ -17,9 +17,38 @@ namespace OvalDock
     /// </summary>
     public partial class ProgramSettingsWindow : Window
     {
-        public ProgramSettingsWindow()
+        private MainWindow TheMainWindow { get; }
+
+        private ProgramSettingsWindow()
         {
             InitializeComponent();
+        }
+
+        // This is what we're always gonna be calling,
+        // so that we can have changes show up in real time
+        public ProgramSettingsWindow(MainWindow mainWindow) : this()
+        {
+            TheMainWindow = mainWindow;
+
+            sliderInnerDiskRadius.Value = Config.InnerRadius;
+        }
+
+        private void sliderInnerDiskRadius_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            // This is VERY NECESSARY because apparently this method CAN and WILL get called before
+            // the value of TheMainWindow is assigned in the constructor.
+            // Even if we do the obvious and only call InitializeComponent() and everything else after
+            // it has been assigned. Spooky.
+            if (TheMainWindow == null)
+                return;
+
+            // TODO: Just change Config.InnerRadius into a double. Keeps things easier.
+            //       Make sure that doesn't break anything also.
+            Config.InnerRadius = (int) sliderInnerDiskRadius.Value;
+
+            // TODO: Use a property for InnerDisk, etc...
+            TheMainWindow.innerDisk.Width = 2 * Config.InnerRadius;
+            TheMainWindow.innerDisk.Height = 2 * Config.InnerRadius;
         }
     }
 }

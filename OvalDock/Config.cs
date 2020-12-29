@@ -14,7 +14,7 @@ namespace OvalDock
 
         public static string InnerDiskImagePath { get; private set; }
 
-        public static int InnerRadius { get; private set; }
+        public static int InnerRadius { get; set; }
 
         public static double InnerDiskNormalOpacity { get; private set; }
 

@@ -41,7 +41,7 @@ namespace OvalDock
         // End of hotkey code
 
 
-        private System.Windows.Controls.Image innerDisk;
+        public System.Windows.Controls.Image innerDisk;
 
         private bool dragged = false;
 
@@ -187,7 +187,7 @@ namespace OvalDock
                 (s, e) =>
                 {
                     // TODO: Handle previewing of settings somehow.
-                    ProgramSettingsWindow settingsWindow = new ProgramSettingsWindow();
+                    ProgramSettingsWindow settingsWindow = new ProgramSettingsWindow(this);
                     settingsWindow.ShowDialog();
                 };
 

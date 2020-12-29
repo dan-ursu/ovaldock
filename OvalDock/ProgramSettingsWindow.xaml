@@ -17,7 +17,7 @@
                     <Label x:Name="labelInnerDiskNormalOpacity" Content="Normal opacity" HorizontalAlignment="Left" Margin="10,63,0,0" VerticalAlignment="Top"/>
                     <Label x:Name="labelInnerDiskMouseDownOpacity" Content="Active opacity" HorizontalAlignment="Left" Margin="10,94,0,0" VerticalAlignment="Top"/>
                     <Slider x:Name="sliderInnerDiskNormalOpacity" HorizontalAlignment="Left" Margin="106,67,0,0" VerticalAlignment="Top" Width="311"/>
-                    <Slider x:Name="sliderInnerDiskRadius" HorizontalAlignment="Left" Margin="106,41,0,0" VerticalAlignment="Top" Width="311"/>
+                    <Slider x:Name="sliderInnerDiskRadius" HorizontalAlignment="Left" Margin="106,41,0,0" VerticalAlignment="Top" Width="311" ValueChanged="sliderInnerDiskRadius_ValueChanged" Minimum="1" Maximum="200" SmallChange="1" LargeChange="10"/>
                     <Slider x:Name="sliderInnerDiskMouseDownOpacity" HorizontalAlignment="Left" Margin="106,98,0,0" VerticalAlignment="Top" Width="311"/>
                 </Grid>
             </TabItem>
