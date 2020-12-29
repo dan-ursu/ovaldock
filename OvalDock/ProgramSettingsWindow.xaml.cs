@@ -30,7 +30,13 @@ namespace OvalDock
         {
             TheMainWindow = mainWindow;
 
-            sliderInnerDiskRadius.Value = Config.InnerRadius;
+            sliderInnerDiskRadius.Value           = Config.InnerRadius;
+            sliderInnerDiskNormalOpacity.Value    = Config.InnerDiskNormalOpacity;
+            sliderInnerDiskMouseDownOpacity.Value = Config.InnerDiskMouseDownOpacity;
+
+            labelInnerDiskRadiusValue.Content           = Config.InnerRadius.ToString("0");
+            labelInnerDiskNormalOpacityValue.Content    = Config.InnerDiskNormalOpacity.ToString("0.##");
+            labelInnerDiskMouseDownOpacityValue.Content = Config.InnerDiskMouseDownOpacity.ToString("0.##");
         }
 
         private void sliderInnerDiskRadius_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
@@ -44,11 +50,35 @@ namespace OvalDock
 
             // TODO: Just change Config.InnerRadius into a double. Keeps things easier.
             //       Make sure that doesn't break anything also.
-            Config.InnerRadius = (int) sliderInnerDiskRadius.Value;
+            Config.InnerRadius = sliderInnerDiskRadius.Value;
+
+            labelInnerDiskRadiusValue.Content = Config.InnerRadius.ToString("0");
 
             // TODO: Use a property for InnerDisk, etc...
-            TheMainWindow.innerDisk.Width = 2 * Config.InnerRadius;
-            TheMainWindow.innerDisk.Height = 2 * Config.InnerRadius;
+            TheMainWindow.InnerDisk.Width = 2 * Config.InnerRadius;
+            TheMainWindow.InnerDisk.Height = 2 * Config.InnerRadius;
+        }
+
+        private void sliderInnerDiskNormalOpacity_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            if (TheMainWindow == null)
+                return;
+
+            Config.InnerDiskNormalOpacity = sliderInnerDiskNormalOpacity.Value;
+
+            labelInnerDiskNormalOpacityValue.Content = Config.InnerDiskNormalOpacity.ToString("0.##");
+
+            TheMainWindow.InnerDisk.Opacity = Config.InnerDiskNormalOpacity;
+        }
+
+        private void sliderInnerDiskMouseDownOpacity_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            if (TheMainWindow == null)
+                return;
+
+            Config.InnerDiskMouseDownOpacity = sliderInnerDiskMouseDownOpacity.Value;
+
+            labelInnerDiskMouseDownOpacityValue.Content = Config.InnerDiskMouseDownOpacity.ToString("0.##");
         }
     }
 }

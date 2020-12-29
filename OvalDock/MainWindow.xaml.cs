@@ -41,7 +41,7 @@ namespace OvalDock
         // End of hotkey code
 
 
-        public System.Windows.Controls.Image innerDisk;
+        public System.Windows.Controls.Image InnerDisk { get; private set; }
 
         private bool dragged = false;
 
@@ -294,20 +294,22 @@ namespace OvalDock
 
         private void CreateInnerDisk()
         {
-            innerDisk = new System.Windows.Controls.Image();
+            InnerDisk = new System.Windows.Controls.Image();
 
             // innerDisk.Source = ToBitmapImage(new Bitmap(Config.InnerDiskImagePath));
-            innerDisk.Source = currentFolder.IconAsBitmapSource;
+            InnerDisk.Source = currentFolder.IconAsBitmapSource;
 
-            innerDisk.Width = 2 * Config.InnerRadius;
-            innerDisk.Height = 2 * Config.InnerRadius;
+            InnerDisk.Opacity = Config.InnerDiskNormalOpacity;
 
-            innerDisk.HorizontalAlignment = HorizontalAlignment.Center;
-            innerDisk.VerticalAlignment = VerticalAlignment.Center;
+            InnerDisk.Width = 2 * Config.InnerRadius;
+            InnerDisk.Height = 2 * Config.InnerRadius;
 
-            innerDisk.MouseLeftButtonDown += InnerDisk_MouseLeftButtonDown;
+            InnerDisk.HorizontalAlignment = HorizontalAlignment.Center;
+            InnerDisk.VerticalAlignment = VerticalAlignment.Center;
 
-            mainGrid.Children.Add(innerDisk);
+            InnerDisk.MouseLeftButtonDown += InnerDisk_MouseLeftButtonDown;
+
+            mainGrid.Children.Add(InnerDisk);
         }
 
         // Add items based on folder's items.
@@ -325,7 +327,7 @@ namespace OvalDock
             }
 
             // Change center icon
-            innerDisk.Source = folder.IconAsBitmapSource;
+            InnerDisk.Source = folder.IconAsBitmapSource;
         }
 
         // To be used if an item was changed in this folder.
@@ -479,7 +481,7 @@ namespace OvalDock
         // TODO: Use a button for the inner disk instead of an image? Can't currently figure out buttons with a non-square border.
         private void InnerDisk_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
-            innerDisk.Opacity = 0.5;
+            InnerDisk.Opacity = Config.InnerDiskMouseDownOpacity;
 
             dragged = false;
 
@@ -489,7 +491,7 @@ namespace OvalDock
             // TODO: DragMove() is preventing the opacity from instantly changing if we're holding the mouse still. Fix.
             DragMove();
 
-            innerDisk.Opacity = 1.0;
+            InnerDisk.Opacity = Config.InnerDiskNormalOpacity;
 
             // Hacky way to handle mouse click on the inner disk.
             if (!dragged)

@@ -15,10 +15,13 @@
                     <Button x:Name="buttonBrowseInnerDiskIcon" Content="Browse" HorizontalAlignment="Left" Margin="375,14,0,0" VerticalAlignment="Top" Height="18"/>
                     <Label x:Name="labelInnerDiskRadius" Content="Radius" HorizontalAlignment="Left" Margin="10,37,0,0" VerticalAlignment="Top"/>
                     <Label x:Name="labelInnerDiskNormalOpacity" Content="Normal opacity" HorizontalAlignment="Left" Margin="10,63,0,0" VerticalAlignment="Top"/>
-                    <Label x:Name="labelInnerDiskMouseDownOpacity" Content="Active opacity" HorizontalAlignment="Left" Margin="10,94,0,0" VerticalAlignment="Top"/>
-                    <Slider x:Name="sliderInnerDiskNormalOpacity" HorizontalAlignment="Left" Margin="106,67,0,0" VerticalAlignment="Top" Width="311"/>
+                    <Label x:Name="labelInnerDiskMouseDownOpacity" Content="Active opacity" HorizontalAlignment="Left" Margin="10,89,0,0" VerticalAlignment="Top"/>
+                    <Slider x:Name="sliderInnerDiskNormalOpacity" HorizontalAlignment="Left" Margin="106,67,0,0" VerticalAlignment="Top" Width="311" ValueChanged="sliderInnerDiskNormalOpacity_ValueChanged" Minimum="0.01" Maximum="1" LargeChange="0.1" SmallChange="0.01"/>
                     <Slider x:Name="sliderInnerDiskRadius" HorizontalAlignment="Left" Margin="106,41,0,0" VerticalAlignment="Top" Width="311" ValueChanged="sliderInnerDiskRadius_ValueChanged" Minimum="1" Maximum="200" SmallChange="1" LargeChange="10"/>
-                    <Slider x:Name="sliderInnerDiskMouseDownOpacity" HorizontalAlignment="Left" Margin="106,98,0,0" VerticalAlignment="Top" Width="311"/>
+                    <Slider x:Name="sliderInnerDiskMouseDownOpacity" HorizontalAlignment="Left" Margin="106,93,0,0" VerticalAlignment="Top" Width="311" Minimum="0.01" Maximum="1" SmallChange="0.01" LargeChange="0.1" ValueChanged="sliderInnerDiskMouseDownOpacity_ValueChanged"/>
+                    <Label x:Name="labelInnerDiskRadiusValue" Content="Label" HorizontalAlignment="Left" Margin="422,37,0,0" VerticalAlignment="Top"/>
+                    <Label x:Name="labelInnerDiskNormalOpacityValue" Content="Label" HorizontalAlignment="Left" Margin="422,63,0,0" VerticalAlignment="Top"/>
+                    <Label x:Name="labelInnerDiskMouseDownOpacityValue" Content="Label" HorizontalAlignment="Left" Margin="422,89,0,0" VerticalAlignment="Top"/>
                 </Grid>
             </TabItem>
             <TabItem x:Name="tabOuterDisk" Header="Outer Disk">

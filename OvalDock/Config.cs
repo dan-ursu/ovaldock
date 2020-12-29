@@ -12,13 +12,13 @@ namespace OvalDock
     {
         public static string ProgramName { get; private set; }
 
-        public static string InnerDiskImagePath { get; private set; }
+        public static string InnerDiskImagePath { get; set; }
 
-        public static int InnerRadius { get; set; }
+        public static double InnerRadius { get; set; }
 
-        public static double InnerDiskNormalOpacity { get; private set; }
+        public static double InnerDiskNormalOpacity { get; set; }
 
-        public static double InnerDiskMouseDownOpacity { get; private set; }
+        public static double InnerDiskMouseDownOpacity { get; set; }
 
         public static int OuterRadius { get; private set; }
 
