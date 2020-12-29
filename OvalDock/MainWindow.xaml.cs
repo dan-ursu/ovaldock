@@ -46,8 +46,8 @@ namespace OvalDock
         private bool dragged = false;
 
         // TODO: Probably more hassle than it's worth, but should this second argument be the inner circle icon somehow?
-        private PieFolderItem rootFolder;
-        private PieFolderItem currentFolder;
+        public PieFolderItem RootFolder { get; private set; }
+        public PieFolderItem CurrentFolder { get; private set; }
 
         private List<Button> itemButtons;
         private List<KeyValuePair<Button, Label>> itemLabels;
@@ -62,9 +62,9 @@ namespace OvalDock
 
             // TODO: Organize this better? Or rename LoadConfig() to LoadProgramConfig()?
             Config.LoadConfig();
-            rootFolder = Config.LoadItems();
+            RootFolder = Config.LoadItems();
 
-            currentFolder = rootFolder;
+            CurrentFolder = RootFolder;
 
             itemButtons = new List<Button>();
             itemLabels = new List<KeyValuePair<Button, Label>>();
@@ -78,7 +78,7 @@ namespace OvalDock
 
             CreateNotifyIcon();
 
-            PreloadIconsRecursive(rootFolder);
+            PreloadIconsRecursive(RootFolder);
             RefreshFolder();
         }
 
@@ -275,14 +275,14 @@ namespace OvalDock
                 {
                     // TODO: This feels inefficient, but PieItemSettingsWindow(null, ...) feels like something might break
                     PieItem newItem = new FileItem(false, null, false, null, null, null, FileItemType.File);
-                    PieItemSettingsWindow pieItemSettingsWindow = new PieItemSettingsWindow(newItem, currentFolder);
+                    PieItemSettingsWindow pieItemSettingsWindow = new PieItemSettingsWindow(newItem, CurrentFolder);
                     pieItemSettingsWindow.ShowDialog();
 
                     if (pieItemSettingsWindow.Saved)
                     {
-                        currentFolder.Items.Add(pieItemSettingsWindow.NewPieItem);
+                        CurrentFolder.Items.Add(pieItemSettingsWindow.NewPieItem);
                         RefreshFolder();
-                        Config.SaveItems(rootFolder);
+                        Config.SaveItems(RootFolder);
                     }
                 };
 
@@ -297,7 +297,7 @@ namespace OvalDock
             InnerDisk = new System.Windows.Controls.Image();
 
             // innerDisk.Source = ToBitmapImage(new Bitmap(Config.InnerDiskImagePath));
-            InnerDisk.Source = currentFolder.IconAsBitmapSource;
+            InnerDisk.Source = CurrentFolder.IconAsBitmapSource;
 
             InnerDisk.Opacity = Config.InnerDiskNormalOpacity;
 
@@ -318,7 +318,7 @@ namespace OvalDock
         {
             ClearItems();
 
-            currentFolder = folder;
+            CurrentFolder = folder;
 
             // Add items
             for (int i = 0; i < folder.Items.Count; i++)
@@ -331,9 +331,9 @@ namespace OvalDock
         }
 
         // To be used if an item was changed in this folder.
-        private void RefreshFolder()
+        public void RefreshFolder()
         {
-            SwitchToFolder(currentFolder);
+            SwitchToFolder(CurrentFolder);
         }
 
         private void ClearItems()
@@ -434,21 +434,21 @@ namespace OvalDock
             settingsMenuItem.Click +=
                 (s, e) =>
                 {
-                    PieItemSettingsWindow pieItemSettingsWindow = new PieItemSettingsWindow(pieItem, currentFolder);
+                    PieItemSettingsWindow pieItemSettingsWindow = new PieItemSettingsWindow(pieItem, CurrentFolder);
                     pieItemSettingsWindow.ShowDialog();
 
                     // Replace the old pieItem with the new one
                     if (pieItemSettingsWindow.Saved)
                     {
-                        int i = currentFolder.Items.IndexOf(pieItem);
+                        int i = CurrentFolder.Items.IndexOf(pieItem);
 
                         // You know, I feel like this should never happen
                         if (i == -1)
                             return;
 
-                        currentFolder.Items[i] = pieItemSettingsWindow.NewPieItem;
+                        CurrentFolder.Items[i] = pieItemSettingsWindow.NewPieItem;
                         RefreshFolder();
-                        Config.SaveItems(rootFolder);
+                        Config.SaveItems(RootFolder);
                     }
                 };
 
@@ -457,9 +457,9 @@ namespace OvalDock
             removeMenuItem.Click +=
                 (s, e) =>
                 {
-                    currentFolder.Items.Remove(pieItem);
+                    CurrentFolder.Items.Remove(pieItem);
                     RefreshFolder();
-                    Config.SaveItems(rootFolder);
+                    Config.SaveItems(RootFolder);
                 };
 
             itemButton.ContextMenu = new ContextMenu();
@@ -496,13 +496,13 @@ namespace OvalDock
             // Hacky way to handle mouse click on the inner disk.
             if (!dragged)
             {
-                if (currentFolder.PrevFolder == null)
+                if (CurrentFolder.PrevFolder == null)
                 {
                     ToggleVisibility();
                 }
                 else
                 {
-                    SwitchToFolder(currentFolder.PrevFolder);
+                    SwitchToFolder(CurrentFolder.PrevFolder);
                 }
             }
 

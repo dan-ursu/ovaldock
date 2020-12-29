@@ -1,5 +1,7 @@
-﻿using System;
+﻿using Microsoft.Win32;
+using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Text;
 using System.Windows;
 using System.Windows.Controls;
@@ -37,6 +39,8 @@ namespace OvalDock
             labelInnerDiskRadiusValue.Content           = Config.InnerRadius.ToString("0");
             labelInnerDiskNormalOpacityValue.Content    = Config.InnerDiskNormalOpacity.ToString("0.##");
             labelInnerDiskMouseDownOpacityValue.Content = Config.InnerDiskMouseDownOpacity.ToString("0.##");
+
+            textBoxInnerDiskIcon.Text = Config.InnerDiskImagePath;
         }
 
         private void sliderInnerDiskRadius_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
@@ -79,6 +83,38 @@ namespace OvalDock
             Config.InnerDiskMouseDownOpacity = sliderInnerDiskMouseDownOpacity.Value;
 
             labelInnerDiskMouseDownOpacityValue.Content = Config.InnerDiskMouseDownOpacity.ToString("0.##");
+        }
+
+        private void buttonBrowseInnerDiskIcon_Click(object sender, RoutedEventArgs e)
+        {
+            // TODO: Check for valid extension
+            OpenFileDialog openFileDialog = new OpenFileDialog();
+            if (openFileDialog.ShowDialog() == true)
+            {
+                Bitmap rootFolderBitmap;
+
+                try
+                {
+                    rootFolderBitmap = new Bitmap(openFileDialog.FileName);
+                }
+                catch(Exception exception)
+                {
+                    MessageBox.Show("Could not load icon.");
+                    return;
+                }
+
+                // Valid image from here on.
+                Config.InnerDiskImagePath = openFileDialog.FileName;
+
+                TheMainWindow.RootFolder.IconAsBitmapSource = Util.ToBitmapImage(rootFolderBitmap);
+                
+                textBoxInnerDiskIcon.Text = Config.InnerDiskImagePath;
+
+                if(TheMainWindow.CurrentFolder == TheMainWindow.RootFolder)
+                {
+                    TheMainWindow.RefreshFolder();
+                }
+            }
         }
     }
 }

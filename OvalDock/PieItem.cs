@@ -76,6 +76,11 @@ namespace OvalDock
 
                 return null;
             }
+
+            set
+            {
+                iconAsBitmapSource = value;
+            }
         }
 
         /*
