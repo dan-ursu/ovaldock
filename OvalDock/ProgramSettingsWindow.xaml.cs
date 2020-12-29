@@ -71,6 +71,8 @@ namespace OvalDock
             // TODO: Use a property for InnerDisk, etc...
             TheMainWindow.InnerDisk.Width = 2 * Config.InnerRadius;
             TheMainWindow.InnerDisk.Height = 2 * Config.InnerRadius;
+
+            TheMainWindow.ResizeWindow();
         }
 
         private void sliderInnerDiskNormalOpacity_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
@@ -138,6 +140,8 @@ namespace OvalDock
 
             TheMainWindow.OuterDisk.Width = 2 * Config.OuterRadius;
             TheMainWindow.OuterDisk.Height = 2 * Config.OuterRadius;
+
+            TheMainWindow.ResizeWindow();
         }
 
         private void sliderOuterDiskNormalOpacity_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)

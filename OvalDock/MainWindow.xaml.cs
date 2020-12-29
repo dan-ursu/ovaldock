@@ -157,14 +157,16 @@ namespace OvalDock
             }
         }
 
-        private void ResizeWindow()
+        public void ResizeWindow()
         {
             // Plenty of space, so that labels can go quite a bit out of "bounds"
-            mainWindow.Width = 3 * Config.OuterRadius;
-            mainWindow.Height = 3 * Config.OuterRadius;
+            double maxRadius = Math.Max(Config.InnerRadius, Config.OuterRadius);
 
-            mainGrid.Width = 3 * Config.OuterRadius;
-            mainGrid.Height = 3 * Config.OuterRadius;
+            mainWindow.Width = 3 * maxRadius;
+            mainWindow.Height = 3 * maxRadius;
+
+            mainGrid.Width = 3 * maxRadius;
+            mainGrid.Height = 3 * maxRadius;
         }
 
         private void CreateNotifyIcon()
