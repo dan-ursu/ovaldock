@@ -173,7 +173,6 @@ namespace OvalDock
             notifyIcon.Text = Config.ProgramName;
             notifyIcon.Visible = true;
 
-            System.Windows.Forms.ContextMenuStrip contextMenu = new System.Windows.Forms.ContextMenuStrip();
             System.Windows.Forms.ToolStripMenuItem quitItem = new System.Windows.Forms.ToolStripMenuItem();
             quitItem.Text = "Quit";
             quitItem.Click +=
@@ -182,6 +181,19 @@ namespace OvalDock
                     Close();
                 };
 
+            System.Windows.Forms.ToolStripMenuItem settingsItem = new System.Windows.Forms.ToolStripMenuItem();
+            settingsItem.Text = "Settings";
+            settingsItem.Click +=
+                (s, e) =>
+                {
+                    // TODO: Handle previewing of settings somehow.
+                    ProgramSettingsWindow settingsWindow = new ProgramSettingsWindow();
+                    settingsWindow.ShowDialog();
+                };
+
+            System.Windows.Forms.ContextMenuStrip contextMenu = new System.Windows.Forms.ContextMenuStrip();
+
+            contextMenu.Items.Add(settingsItem);
             contextMenu.Items.Add(quitItem);
 
             notifyIcon.ContextMenuStrip = contextMenu;

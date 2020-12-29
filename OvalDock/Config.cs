@@ -11,11 +11,18 @@ namespace OvalDock
     class Config
     {
         public static string ProgramName { get; private set; }
-        public static int OuterRadius { get; private set; }
+
+        public static string InnerDiskImagePath { get; private set; }
+
         public static int InnerRadius { get; private set; }
 
+        public static double InnerDiskNormalOpacity { get; private set; }
+
+        public static double InnerDiskMouseDownOpacity { get; private set; }
+
+        public static int OuterRadius { get; private set; }
+
         public static string OuterDiskImagePath { get; private set; }
-        public static string InnerDiskImagePath { get; private set; }
 
         public static Bitmap PieFolderDefaultIcon { get; private set; }
 
@@ -43,15 +50,18 @@ namespace OvalDock
             ItemSaveLocation = "items.xml";
             ProgramSaveLocation = "config.xml";
 
+            InnerDiskImagePath = @".\System\Icons\Windows Logo.png";
+            InnerRadius = 50;
+            InnerDiskNormalOpacity = 1.0;
+            InnerDiskMouseDownOpacity = 0.5;
+
             OuterRadius = 200;
-            InnerRadius = OuterRadius / 4;
             PieItemSize = 50;
             PieItemLabelPadding = 50;
             PieItemLabelSize = 20;
             PieItemRadiusFromCenter = 325;
 
             OuterDiskImagePath = @".\System\Background\circle.png";
-            InnerDiskImagePath = @".\System\Icons\Windows Logo.png";
             PieFolderDefaultIcon = new Bitmap(@".\System\Icons\My Documents.png");
             PieFileNotFoundIcon = new Bitmap(@".\system\Icons\firewire.png");
 
