@@ -49,10 +49,8 @@ namespace OvalDock
 
             set
             {
-                // Clear the rest of the data if changing the image manually.
+                // Clear the rest of the cache if changing the image manually.
                 imageBitmapCache = value;
-
-                imagePath = null;
                 imageBitmapSourceCache = null;
             }
         }
@@ -80,10 +78,8 @@ namespace OvalDock
 
             set
             {
-                // Clear the rest of the data if changing the image manually.
+                // Clear the rest of the cache if changing the image manually.
                 imageBitmapSourceCache = value;
-
-                imagePath = null;
                 imageBitmapCache = null;
             }
         }

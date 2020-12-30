@@ -66,9 +66,11 @@ namespace OvalDock
             FolderDefaultIcon = new CachedImage();
             FolderDefaultIcon.ImagePath = @".\System\Icons\My Documents.png";
             PieItemSize = 50;
+            PieItemNormalOpacity = 1.0;
+            PieItemMouseDownOpacity = 0.5;
             PieItemRadiusFromCenter = 325;
 
-            PieItemLabelPadding = 50;
+            PieItemLabelPadding = 20;
             PieItemLabelSize = 20;
 
             

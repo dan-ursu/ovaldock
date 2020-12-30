@@ -57,6 +57,9 @@ namespace OvalDock
                     //
                     // Clone because we CAN modify the icon directly later.
                     // Load cache on main copy beforehand to do as little work on the rest of the copies as possible.
+                    //
+                    // TODO: This whole cloning technique is not great.
+                    //       There is no way to conveniently check if we are using a "file not found" icon.
                     Config.FileNotFoundIcon.CreateCache();
                     base.Icon = Config.FileNotFoundIcon.Copy();
                     return base.Icon;

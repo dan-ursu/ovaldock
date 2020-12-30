@@ -40,7 +40,7 @@
                     <Label x:Name="labelOuterDiskMouseDownOpacityValue" Content="Label" HorizontalAlignment="Left" Margin="543,89,0,0" VerticalAlignment="Top"/>
                 </Grid>
             </TabItem>
-            <TabItem x:Name="tabItemAppearence" Header="Item Appearence" Margin="-2,-2,-2,0">
+            <TabItem x:Name="tabItemAppearence" Header="Item Appearence">
                 <Grid Background="#FFE5E5E5">
                     <Label x:Name="labelItemFileNotFoundIcon" Content="File not found icon" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top"/>
                     <TextBox x:Name="textBoxItemFileNotFoundIcon" HorizontalAlignment="Left" Margin="131,14,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="407" IsEnabled="False" Height="18"/>
@@ -49,13 +49,13 @@
                     <Label x:Name="labelItemNormalOpacity" Content="Item normal opacity" HorizontalAlignment="Left" Margin="10,85,0,0" VerticalAlignment="Top"/>
                     <Label x:Name="labelItemMouseDownOpacity" Content="Item drag opacity" HorizontalAlignment="Left" Margin="10,112,0,0" VerticalAlignment="Top"/>
                     <Slider x:Name="sliderItemNormalOpacity" HorizontalAlignment="Left" Margin="131,89,0,0" VerticalAlignment="Top" Width="412" Minimum="0.01" Maximum="1" LargeChange="0.1" SmallChange="0.01" ValueChanged="sliderItemNormalOpacity_ValueChanged"/>
-                    <Slider x:Name="sliderItemSize" HorizontalAlignment="Left" Margin="131,63,0,0" VerticalAlignment="Top" Width="412" Minimum="1" Maximum="400" SmallChange="1" LargeChange="10" ValueChanged="sliderItemSize_ValueChanged"/>
+                    <Slider x:Name="sliderItemSize" HorizontalAlignment="Left" Margin="131,63,0,0" VerticalAlignment="Top" Width="412" Minimum="1" Maximum="100" SmallChange="1" LargeChange="10" ValueChanged="sliderItemSize_ValueChanged"/>
                     <Slider x:Name="sliderItemMouseDownOpacity" HorizontalAlignment="Left" Margin="131,116,0,0" VerticalAlignment="Top" Width="412" Minimum="0.01" Maximum="1" SmallChange="0.01" LargeChange="0.1" ValueChanged="sliderItemMouseDownOpacity_ValueChanged"/>
                     <Label x:Name="labelItemSizeValue" Content="Label" HorizontalAlignment="Left" Margin="543,59,0,0" VerticalAlignment="Top"/>
                     <Label x:Name="labelItemNormalOpacityValue" Content="Label" HorizontalAlignment="Left" Margin="543,85,0,0" VerticalAlignment="Top"/>
                     <Label x:Name="labelItemMouseDownOpacityValue" Content="Label" HorizontalAlignment="Left" Margin="543,112,0,0" VerticalAlignment="Top"/>
                     <Label x:Name="labelItemRadiusFromCenter" Content="Radius from center" HorizontalAlignment="Left" Margin="10,139,0,0" VerticalAlignment="Top"/>
-                    <Slider x:Name="sliderItemRadiusFromCenter" HorizontalAlignment="Left" Margin="131,143,0,0" VerticalAlignment="Top" Width="412" Minimum="0.01" Maximum="1" SmallChange="0.01" LargeChange="0.1" ValueChanged="sliderItemRadiusFromCenter_ValueChanged"/>
+                    <Slider x:Name="sliderItemRadiusFromCenter" HorizontalAlignment="Left" Margin="131,143,0,0" VerticalAlignment="Top" Width="412" Minimum="1" Maximum="400" SmallChange="1" LargeChange="10" ValueChanged="sliderItemRadiusFromCenter_ValueChanged"/>
                     <Label x:Name="labelItemRadiusFromCenterValue" Content="Label" HorizontalAlignment="Left" Margin="543,139,0,0" VerticalAlignment="Top"/>
                     <Label x:Name="labelItemFolderDefaultIcon" Content="Folder default icon" HorizontalAlignment="Left" Margin="10,33,0,0" VerticalAlignment="Top"/>
                     <TextBox x:Name="textBoxItemFolderDefaultIcon" HorizontalAlignment="Left" Margin="131,37,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="407" IsEnabled="False" Height="18"/>

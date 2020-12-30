@@ -50,8 +50,8 @@ namespace OvalDock
         public PieFolderItem RootFolder { get; private set; }
         public PieFolderItem CurrentFolder { get; private set; }
 
-        private List<Button> itemButtons;
-        private List<KeyValuePair<Button, Label>> itemLabels;
+        public List<Button> ItemButtons { get; }
+        public List<KeyValuePair<Button, Label>> ItemLabels { get; }
 
         // Unfortunately have to rely on Windows Forms for this.
         // .csproj was modified to use Windows Forms as well.
@@ -67,8 +67,8 @@ namespace OvalDock
 
             CurrentFolder = RootFolder;
 
-            itemButtons = new List<Button>();
-            itemLabels = new List<KeyValuePair<Button, Label>>();
+            ItemButtons = new List<Button>();
+            ItemLabels = new List<KeyValuePair<Button, Label>>();
 
             ResizeWindow();
 
@@ -132,7 +132,7 @@ namespace OvalDock
 
 
         // Preload the icons for speed
-        private void PreloadIconsRecursive(PieFolderItem folder)
+        public void PreloadIconsRecursive(PieFolderItem folder)
         {
             // Force each icon to load (at least) once.
             // Preloading is handled in the IconAsBitmapSource property.
@@ -346,23 +346,84 @@ namespace OvalDock
             SwitchToFolder(CurrentFolder);
         }
 
+        // Refresh the "file not found" icons.
+        // TODO: This is inefficient. Will refresh if not using a custom icon
+        //       but successfully loaded an icon from the file.
+        // TODO: This is also awful. Much better to be rid of the Copy() portion used somewhere
+        //       and just directly pointed to Config.FileNotFoundIcon.
+        public void ClearCachedImagesFileNotFound(PieFolderItem folder, string oldPath, string newPath)
+        {
+            foreach(PieItem item in folder.Items)
+            {
+                if(item is FileItem && !item.IsCustomIcon && item.Icon.ImagePath == oldPath)
+                {
+                    item.Icon.ClearCache();
+                    item.Icon.ImagePath = newPath;
+                }
+                else if(item is PieFolderItem)
+                {
+                    ClearCachedImagesFileNotFound((PieFolderItem)item, oldPath, newPath);
+                }
+            }
+        }
+
+        // TODO: Similar here.
+        public void ClearCachedImagesDefaultFolder(PieFolderItem folder, string oldPath, string newPath)
+        {
+            if (!folder.IsCustomIcon && folder.Icon.ImagePath == oldPath)
+            {
+                folder.Icon.ClearCache();
+                folder.Icon.ImagePath = newPath;
+            }                
+
+            foreach(PieItem item in folder.Items)
+            {
+                if(item is PieFolderItem)
+                {
+                    ClearCachedImagesDefaultFolder((PieFolderItem)item, oldPath, newPath);
+                }
+            }
+        }
+
+        // TODO: This whole keeping track of buttons business is a bit ugly. Redo it at some point.
+        public void UpdateItemButtonAppearance(Button itemButton, int number, int totalItems)
+        {
+            itemButton.Width = Config.PieItemSize;
+            itemButton.Height = Config.PieItemSize;
+            itemButton.Opacity = Config.PieItemNormalOpacity;
+
+            // To be spread evenly in a circle.
+            var buttonMargin = new Thickness();
+            buttonMargin.Left = Config.PieItemRadiusFromCenter * Math.Cos(number * 2 * Math.PI / totalItems);
+            buttonMargin.Top = Config.PieItemRadiusFromCenter * Math.Sin(number * 2 * Math.PI / totalItems);
+            itemButton.Margin = buttonMargin;
+        }
+
+        public void UpdateItemButtonAppearance()
+        {
+            for (int i = 0; i < ItemButtons.Count; i++)
+            {
+                UpdateItemButtonAppearance(ItemButtons[i], i, ItemButtons.Count);
+            }
+        }
+
         private void ClearItems()
         {
-            foreach (Button button in itemButtons)
+            foreach (Button button in ItemButtons)
             {
                 mainGrid.Children.Remove(button);
             }
 
-            itemButtons.Clear();
+            ItemButtons.Clear();
 
             // This might be slightly unnecessary, but might as well remove labels for extra safety.
             // I suspect there will never be any labels anyways though.
-            foreach (var kvp in itemLabels)
+            foreach (var kvp in ItemLabels)
             {
                 mainGrid.Children.Remove(kvp.Value);
             }
 
-            itemLabels.Clear();
+            ItemLabels.Clear();
         }
 
         // This is a bit more complicated.
@@ -376,14 +437,8 @@ namespace OvalDock
             var itemButton = new Button();
 
             itemButton.Content = itemImage;
-            itemButton.Width = Config.PieItemSize;
-            itemButton.Height = Config.PieItemSize;
 
-            // To be spread evenly in a circle.
-            var buttonMargin = new Thickness();
-            buttonMargin.Left = Config.PieItemRadiusFromCenter * Math.Cos(number * 2 * Math.PI / totalItems);
-            buttonMargin.Top = Config.PieItemRadiusFromCenter * Math.Sin(number * 2 * Math.PI / totalItems);
-            itemButton.Margin = buttonMargin;
+            UpdateItemButtonAppearance(itemButton, number, totalItems);
 
             itemButton.HorizontalAlignment = HorizontalAlignment.Center;
             itemButton.VerticalAlignment = VerticalAlignment.Center;
@@ -418,7 +473,7 @@ namespace OvalDock
 
                     label.FontSize = Config.PieItemLabelSize;
 
-                    itemLabels.Add(new KeyValuePair<Button, Label>(itemButton, label));
+                    ItemLabels.Add(new KeyValuePair<Button, Label>(itemButton, label));
                     mainGrid.Children.Add(label);
                 };
 
@@ -426,7 +481,7 @@ namespace OvalDock
                 (s, e) =>
                 {
                     // Delete the label corresponding to the button.
-                    foreach (KeyValuePair<Button, Label> itemLabel in itemLabels)
+                    foreach (KeyValuePair<Button, Label> itemLabel in ItemLabels)
                     {
                         if (itemLabel.Key == itemButton)
                         {
@@ -435,7 +490,7 @@ namespace OvalDock
                     }
 
                     // I suspect this might be a memory leak if we don't include this line?
-                    itemLabels.RemoveAll((kvp) => { return kvp.Key == itemButton; });
+                    ItemLabels.RemoveAll((kvp) => { return kvp.Key == itemButton; });
                 };
 
             // Create the context menu
@@ -479,7 +534,7 @@ namespace OvalDock
 
             //TODO: Figure out transparency of background/border on hover.
 
-            itemButtons.Add(itemButton);
+            ItemButtons.Add(itemButton);
             mainGrid.Children.Add(itemButton);
         }
 
@@ -494,6 +549,11 @@ namespace OvalDock
             InnerDisk.Opacity = Config.InnerDiskMouseDownOpacity;
             OuterDisk.Opacity = Config.OuterDiskMouseDownOpacity;
 
+            foreach(Button button in ItemButtons)
+            {
+                button.Opacity = Config.PieItemMouseDownOpacity;
+            }
+
             dragged = false;
 
             // So apparently DragMove() is blocking.
@@ -504,6 +564,11 @@ namespace OvalDock
 
             InnerDisk.Opacity = Config.InnerDiskNormalOpacity;
             OuterDisk.Opacity = Config.OuterDiskNormalOpacity;
+
+            foreach (Button button in ItemButtons)
+            {
+                button.Opacity = Config.PieItemNormalOpacity;
+            }
 
             // Hacky way to handle mouse click on the inner disk.
             if (!dragged)
@@ -523,13 +588,24 @@ namespace OvalDock
 
         private void OuterDisk_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
+            // TODO: There is a lot of code duplication between the inner disk and outer disk methods. Fix.
             InnerDisk.Opacity = Config.InnerDiskMouseDownOpacity;
             OuterDisk.Opacity = Config.OuterDiskMouseDownOpacity;
+
+            foreach (Button button in ItemButtons)
+            {
+                button.Opacity = Config.PieItemMouseDownOpacity;
+            }
 
             DragMove();
 
             InnerDisk.Opacity = Config.InnerDiskNormalOpacity;
             OuterDisk.Opacity = Config.OuterDiskNormalOpacity;
+
+            foreach (Button button in ItemButtons)
+            {
+                button.Opacity = Config.PieItemNormalOpacity;
+            }
         }
     }
 }

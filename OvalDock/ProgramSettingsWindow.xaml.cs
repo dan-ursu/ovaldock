@@ -19,6 +19,8 @@ namespace OvalDock
     /// </summary>
     public partial class ProgramSettingsWindow : Window
     {
+        // TODO: At some point, make the stuff in Config.cs not static,
+        //       and use properties in Config.cs to update the instance of TheMainWindow we are working with.
         private MainWindow TheMainWindow { get; }
 
         // Used to make sure we don't have multiple windows open at once.
@@ -56,6 +58,19 @@ namespace OvalDock
             labelOuterDiskMouseDownOpacityValue.Content = Config.OuterDiskMouseDownOpacity.ToString("0.##");
 
             textBoxOuterDiskIcon.Text = Config.OuterDiskImagePath;
+
+            textBoxItemFileNotFoundIcon.Text = Config.FileNotFoundIcon.ImagePath;
+            textBoxItemFolderDefaultIcon.Text = Config.FolderDefaultIcon.ImagePath;
+
+            sliderItemSize.Value             = Config.PieItemSize;
+            sliderItemNormalOpacity.Value    = Config.PieItemNormalOpacity;
+            sliderItemMouseDownOpacity.Value = Config.PieItemMouseDownOpacity;
+            sliderItemRadiusFromCenter.Value = Config.PieItemRadiusFromCenter;
+
+            labelItemSizeValue.Content             = Config.PieItemSize.ToString("0");
+            labelItemNormalOpacityValue.Content    = Config.PieItemNormalOpacity.ToString("0.##");
+            labelItemMouseDownOpacityValue.Content = Config.PieItemMouseDownOpacity.ToString("0.##");
+            labelItemRadiusFromCenterValue.Content = Config.PieItemRadiusFromCenter.ToString("0");
         }
 
         private void sliderInnerDiskRadius_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
@@ -121,7 +136,8 @@ namespace OvalDock
                 // Valid image from here on.
                 Config.InnerDiskImagePath = openFileDialog.FileName;
 
-                TheMainWindow.RootFolder.Icon.ImageBitmapSource = Util.ToBitmapImage(rootFolderBitmap);
+                TheMainWindow.RootFolder.Icon.ImagePath = Config.InnerDiskImagePath;
+                TheMainWindow.RootFolder.Icon.ImageBitmap = rootFolderBitmap; // We've already preloaded. Why not?
                 
                 textBoxInnerDiskIcon.Text = Config.InnerDiskImagePath;
 
@@ -203,32 +219,115 @@ namespace OvalDock
 
         private void buttonItemFileNotFoundIcon_Click(object sender, RoutedEventArgs e)
         {
-            
+            // TODO: Check for valid extension? Or nah?
+            OpenFileDialog openFileDialog = new OpenFileDialog();
+            if (openFileDialog.ShowDialog() == true)
+            {
+                Bitmap bitmap;
+
+                try
+                {
+                    bitmap = new Bitmap(openFileDialog.FileName);
+                }
+                catch (Exception exception)
+                {
+                    MessageBox.Show("Could not load icon.");
+                    return;
+                }
+
+                string oldPath = Config.FileNotFoundIcon.ImagePath;
+
+                Config.FileNotFoundIcon.ImagePath = openFileDialog.FileName;
+                Config.FileNotFoundIcon.ImageBitmap = bitmap; // Again, already preloaded.
+                Config.FileNotFoundIcon.CreateCache(); // Just in case it doesn't get preloaded before refreshing the icons.
+                                                       // But, to my knowledge, it should.
+
+                textBoxItemFileNotFoundIcon.Text = Config.FileNotFoundIcon.ImagePath;
+
+                TheMainWindow.ClearCachedImagesFileNotFound(TheMainWindow.RootFolder, oldPath, Config.FileNotFoundIcon.ImagePath);
+                TheMainWindow.PreloadIconsRecursive(TheMainWindow.RootFolder); // Icons outside the folder could be modified
+                TheMainWindow.RefreshFolder();
+            }
         }
 
         private void buttonItemFolderDefaultIcon_Click(object sender, RoutedEventArgs e)
         {
+            // TODO: Check for valid extension? Or nah?
+            // TODO: There's also a lot of code duplication here. Fix.
+            OpenFileDialog openFileDialog = new OpenFileDialog();
+            if (openFileDialog.ShowDialog() == true)
+            {
+                Bitmap bitmap;
 
+                try
+                {
+                    bitmap = new Bitmap(openFileDialog.FileName);
+                }
+                catch (Exception exception)
+                {
+                    MessageBox.Show("Could not load icon.");
+                    return;
+                }
+
+                string oldPath = Config.FolderDefaultIcon.ImagePath;
+
+                Config.FolderDefaultIcon.ImagePath = openFileDialog.FileName;
+                Config.FolderDefaultIcon.ImageBitmap = bitmap; // Again, already preloaded.
+                Config.FolderDefaultIcon.CreateCache(); // Just in case it doesn't get preloaded before refreshing the icons.
+                                                        // But, to my knowledge, it should.
+
+                textBoxItemFolderDefaultIcon.Text = Config.FolderDefaultIcon.ImagePath;
+
+                TheMainWindow.ClearCachedImagesDefaultFolder(TheMainWindow.RootFolder, oldPath, Config.FolderDefaultIcon.ImagePath);
+                TheMainWindow.PreloadIconsRecursive(TheMainWindow.RootFolder); // Icons outside the folder could be modified
+                TheMainWindow.RefreshFolder();
+            }
         }
 
         private void sliderItemSize_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
+            if (TheMainWindow == null)
+                return;
 
+            Config.PieItemSize = sliderItemSize.Value;
+
+            labelItemSizeValue.Content = Config.PieItemSize.ToString("0");
+
+            TheMainWindow.UpdateItemButtonAppearance();
         }
 
         private void sliderItemNormalOpacity_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
+            if (TheMainWindow == null)
+                return;
 
+            Config.PieItemNormalOpacity = sliderItemNormalOpacity.Value;
+
+            labelItemNormalOpacityValue.Content = Config.PieItemNormalOpacity.ToString("0.##");
+
+            TheMainWindow.UpdateItemButtonAppearance();
         }
 
         private void sliderItemMouseDownOpacity_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
+            if (TheMainWindow == null)
+                return;
 
+            Config.PieItemMouseDownOpacity = sliderItemMouseDownOpacity.Value;
+
+            labelItemMouseDownOpacityValue.Content = Config.PieItemMouseDownOpacity.ToString("0.##");
         }
 
         private void sliderItemRadiusFromCenter_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
+            if (TheMainWindow == null)
+                return;
 
+            Config.PieItemRadiusFromCenter = sliderItemRadiusFromCenter.Value;
+
+            labelItemRadiusFromCenterValue.Content = Config.PieItemRadiusFromCenter.ToString("0");
+
+            TheMainWindow.UpdateItemButtonAppearance();
         }
     }
 }

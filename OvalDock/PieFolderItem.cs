@@ -28,6 +28,9 @@ namespace OvalDock
                 // Use the default icon otherwise
                 // Clone because we CAN modify the icon directly later.
                 // Load cache on main copy beforehand to do as little work on the rest of the copies as possible.
+                //
+                // TODO: This whole cloning technique is not great.
+                //       There is no way to conveniently check if we are using a default icon.
                 Config.FolderDefaultIcon.CreateCache();
                 base.Icon = Config.FolderDefaultIcon.Copy();
                 return base.Icon;
