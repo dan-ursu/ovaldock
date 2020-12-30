@@ -141,11 +141,11 @@ namespace OvalDock
             // The second time, it has already been preloaded.
             BitmapSource temp;
 
-            temp = folder.Icon.ImageBitmapSource;
+            folder.Icon.CreateCache();
 
             foreach (PieItem item in folder.Items)
             {
-                temp = item.Icon.ImageBitmapSource;
+                item.Icon.CreateCache();
             }
 
             foreach (PieItem item in folder.Items)
