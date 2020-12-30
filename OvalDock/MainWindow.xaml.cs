@@ -141,11 +141,11 @@ namespace OvalDock
             // The second time, it has already been preloaded.
             BitmapSource temp;
 
-            temp = folder.IconAsBitmapSource;
+            temp = folder.Icon.ImageBitmapSource;
 
             foreach (PieItem item in folder.Items)
             {
-                temp = item.IconAsBitmapSource;
+                temp = item.Icon.ImageBitmapSource;
             }
 
             foreach (PieItem item in folder.Items)
@@ -307,7 +307,7 @@ namespace OvalDock
             InnerDisk = new System.Windows.Controls.Image();
 
             // innerDisk.Source = ToBitmapImage(new Bitmap(Config.InnerDiskImagePath));
-            InnerDisk.Source = CurrentFolder.IconAsBitmapSource;
+            InnerDisk.Source = CurrentFolder.Icon.ImageBitmapSource;
 
             InnerDisk.Opacity = Config.InnerDiskNormalOpacity;
 
@@ -337,7 +337,7 @@ namespace OvalDock
             }
 
             // Change center icon
-            InnerDisk.Source = folder.IconAsBitmapSource;
+            InnerDisk.Source = folder.Icon.ImageBitmapSource;
         }
 
         // To be used if an item was changed in this folder.
@@ -370,7 +370,7 @@ namespace OvalDock
         private void AddPieItem(PieItem pieItem, int number, int totalItems)
         {
             var itemImage = new System.Windows.Controls.Image();
-            itemImage.Source = pieItem.IconAsBitmapSource;
+            itemImage.Source = pieItem.Icon.ImageBitmapSource;
 
 
             var itemButton = new Button();

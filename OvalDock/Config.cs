@@ -22,104 +22,8 @@ namespace OvalDock
         public static double OuterDiskNormalOpacity { get; set; }
         public static double OuterDiskMouseDownOpacity { get; set; }
 
-        // Cache the icon. BitmapSource accesses Bitmap accesses string
-        private static Bitmap pieFileNotFoundIconBitmap = null;
-        private static BitmapSource pieFileNotFoundIconBitmapSource = null;
-        public static Bitmap PieFileNotFoundIconBitmap
-        {
-            get
-            {
-                // Check icon cache.
-                if(pieFileNotFoundIconBitmap != null)
-                {
-                    return pieFileNotFoundIconBitmap;
-                }
-
-                // Icon not pre-cached. Load it, save it, return it.
-                try
-                {
-                    pieFileNotFoundIconBitmap = new Bitmap(PieFileNotFoundIconPath);
-                    return pieFileNotFoundIconBitmap;
-                }
-                catch (Exception e)
-                {
-                    return null;
-                }
-            }
-        }
-        public static BitmapSource PieFileNotFoundIconBitmapSource
-        {
-            get
-            {
-                // Check BitmapSource cache.
-                if (pieFileNotFoundIconBitmapSource != null)
-                {
-                    return pieFileNotFoundIconBitmapSource;
-                }
-
-                // Try to load Bitmap (property, NOT directly accessing the cache)
-                try
-                {
-                    pieFileNotFoundIconBitmapSource = Util.ToBitmapImage(PieFileNotFoundIconBitmap);
-                    return pieFileNotFoundIconBitmapSource;
-                }
-                catch(Exception e)
-                {
-                    return null;
-                }
-            }
-        }
-        public static string PieFileNotFoundIconPath { get; set; }
-
-        // TODO: Consider just making a CachedImage class.
-        // Exactly the same for the default folder icon
-        private static Bitmap pieFolderDefaultIconBitmap = null;
-        private static BitmapSource pieFolderDefaultIconBitmapSource = null;
-        public static Bitmap PieFolderDefaultIconBitmap
-        {
-            get
-            {
-                // Check icon cache.
-                if (pieFolderDefaultIconBitmap != null)
-                {
-                    return pieFolderDefaultIconBitmap;
-                }
-
-                // Icon not pre-cached. Load it, save it, return it.
-                try
-                {
-                    pieFolderDefaultIconBitmap = new Bitmap(PieFolderDefaultIconPath);
-                    return pieFolderDefaultIconBitmap;
-                }
-                catch (Exception e)
-                {
-                    return null;
-                }
-            }
-        }
-        public static BitmapSource PieFolderDefaultIconBitmapSource
-        {
-            get
-            {
-                // Check BitmapSource cache.
-                if (pieFolderDefaultIconBitmapSource != null)
-                {
-                    return pieFolderDefaultIconBitmapSource;
-                }
-
-                // Try to load Bitmap (property, NOT directly accessing the cache)
-                try
-                {
-                    pieFolderDefaultIconBitmapSource = Util.ToBitmapImage(PieFolderDefaultIconBitmap);
-                    return pieFolderDefaultIconBitmapSource;
-                }
-                catch (Exception e)
-                {
-                    return null;
-                }
-            }
-        }
-        public static string PieFolderDefaultIconPath { get; set; }
+        public static CachedImage FileNotFoundIcon { get; private set; }
+        public static CachedImage FolderDefaultIcon { get; private set; }
 
         public static double PieItemSize { get; set; }
         public static double PieItemNormalOpacity { get; set; }
@@ -157,8 +61,10 @@ namespace OvalDock
             OuterDiskNormalOpacity = 1.0;
             OuterDiskMouseDownOpacity = 0.5;
 
-            PieFolderDefaultIconPath = @".\System\Icons\My Documents.png";
-            PieFileNotFoundIconPath = @".\system\Icons\firewire.png";
+            FileNotFoundIcon = new CachedImage();
+            FileNotFoundIcon.ImagePath = @".\system\Icons\firewire.png";
+            FolderDefaultIcon = new CachedImage();
+            FolderDefaultIcon.ImagePath = @".\System\Icons\My Documents.png";
             PieItemSize = 50;
             PieItemRadiusFromCenter = 325;
 

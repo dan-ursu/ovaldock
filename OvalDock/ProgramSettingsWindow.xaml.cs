@@ -121,7 +121,7 @@ namespace OvalDock
                 // Valid image from here on.
                 Config.InnerDiskImagePath = openFileDialog.FileName;
 
-                TheMainWindow.RootFolder.IconAsBitmapSource = Util.ToBitmapImage(rootFolderBitmap);
+                TheMainWindow.RootFolder.Icon.ImageBitmapSource = Util.ToBitmapImage(rootFolderBitmap);
                 
                 textBoxInnerDiskIcon.Text = Config.InnerDiskImagePath;
 
@@ -203,27 +203,7 @@ namespace OvalDock
 
         private void buttonItemFileNotFoundIcon_Click(object sender, RoutedEventArgs e)
         {
-            // TODO: Check for valid extension? Or nah?
-            OpenFileDialog openFileDialog = new OpenFileDialog();
-            if (openFileDialog.ShowDialog() == true)
-            {
-                Bitmap outerDiskBitmap;
-
-                try
-                {
-                    outerDiskBitmap = new Bitmap(openFileDialog.FileName);
-                }
-                catch (Exception exception)
-                {
-                    MessageBox.Show("Could not load icon.");
-                    return;
-                }
-
-                // Valid image from here on.
-                Config.PieFileNotFoundIconPath = openFileDialog.FileName;
-
-                // TODO: UNFINISHED! Refresh icons!
-            }
+            
         }
 
         private void buttonItemFolderDefaultIcon_Click(object sender, RoutedEventArgs e)

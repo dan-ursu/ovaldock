@@ -27,15 +27,15 @@ namespace OvalDock
 
         public string Arguments { get; private set; }
 
-        public override BitmapSource IconAsBitmapSource
+        public override CachedImage Icon
         {
             get
             {
-                // Preloaded or custom icon handled in base class.
-                if (base.IconAsBitmapSource != null)
-                    return base.IconAsBitmapSource;
+                // Check to make sure we have a BitmapSource cached.
+                if (base.Icon.ImageBitmapSource != null)
+                    return base.Icon;
 
-                // File icon handled here.
+                // Extract the file icon as a BitmapSource otherwise.
                 // TODO: Just copy pasted this code from somewhere.
                 try
                 {
@@ -47,15 +47,19 @@ namespace OvalDock
                     sysicon.Dispose();
 
                     // Icon extracted. Save for later and return.
-                    iconAsBitmapSource = bmpSrc;
-                    return bmpSrc;
+                    base.Icon.ImageBitmapSource = bmpSrc;
+                    return base.Icon;
                 }
                 catch (Exception e)
                 {
-                    // Icon could not be extracted. Save the default for later and return.
+                    // Icon could not be extracted. Use the "file not found" icon then.
                     // TODO: The default CAN be null? What happens then?
-                    iconAsBitmapSource = Config.PieFileNotFoundIconBitmapSource;
-                    return iconAsBitmapSource;
+                    //
+                    // Clone because we CAN modify the icon directly later.
+                    // Load cache on main copy beforehand to do as little work on the rest of the copies as possible.
+                    Config.FileNotFoundIcon.CreateCache();
+                    base.Icon = Config.FileNotFoundIcon.Copy();
+                    return base.Icon;
                 }
             }
         }

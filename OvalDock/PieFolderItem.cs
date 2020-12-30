@@ -17,20 +17,22 @@ namespace OvalDock
 
         public List<PieItem> Items { get; }
 
-        protected override Bitmap Icon
+        public override CachedImage Icon
         {
             get
             {
-                // Preloaded or custom icon
-                if (base.Icon != null)
+                // Check to make sure we have a Bitmap cached.
+                if (base.Icon.ImageBitmap != null)
                     return base.Icon;
 
                 // Cache and use default icon otherwise
                 try
                 {
-                    // TODO: THIS IS POSSIBLY INEFFICIENT! The we end up converting to BitmapSource for every single folder?
-                    icon = Config.PieFolderDefaultIconBitmap;
-                    return icon;
+                    // Clone because we CAN modify the icon directly later.
+                    // Load cache on main copy beforehand to do as little work on the rest of the copies as possible.
+                    Config.FolderDefaultIcon.CreateCache();
+                    base.Icon = Config.FolderDefaultIcon.Copy();
+                    return base.Icon;
                 }
                 catch(Exception e)
                 {
