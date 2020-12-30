@@ -25,8 +25,17 @@ namespace OvalDock
                 if (base.Icon != null)
                     return base.Icon;
 
-                // Use default icon otherwise
-                return Config.PieFolderDefaultIcon;
+                // Cache and use default icon otherwise
+                try
+                {
+                    // TODO: THIS IS POSSIBLY INEFFICIENT! The we end up converting to BitmapSource for every single folder?
+                    icon = Config.PieFolderDefaultIconBitmap;
+                    return icon;
+                }
+                catch(Exception e)
+                {
+                    return null; // TODO: Check what happens if no valid default folder icon.
+                }
             }
         }
 

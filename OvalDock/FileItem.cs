@@ -53,10 +53,10 @@ namespace OvalDock
                 catch (Exception e)
                 {
                     // Icon could not be extracted. Save the default for later and return.
-                    iconAsBitmapSource = Util.ToBitmapImage(Config.PieFileNotFoundIcon);
+                    // TODO: The default CAN be null? What happens then?
+                    iconAsBitmapSource = Config.PieFileNotFoundIconBitmapSource;
                     return iconAsBitmapSource;
                 }
-
             }
         }
 
