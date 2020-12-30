@@ -21,6 +21,9 @@ namespace OvalDock
     {
         private MainWindow TheMainWindow { get; }
 
+        // Used to make sure we don't have multiple windows open at once.
+        public static bool IsWindowActive { get; private set; }
+
         private ProgramSettingsWindow()
         {
             InitializeComponent();
@@ -31,6 +34,8 @@ namespace OvalDock
         public ProgramSettingsWindow(MainWindow mainWindow) : this()
         {
             TheMainWindow = mainWindow;
+
+            IsWindowActive = true;
 
             sliderInnerDiskRadius.Value           = Config.InnerRadius;
             sliderInnerDiskNormalOpacity.Value    = Config.InnerDiskNormalOpacity;
@@ -62,16 +67,14 @@ namespace OvalDock
             if (TheMainWindow == null)
                 return;
 
-            // TODO: Just change Config.InnerRadius into a double. Keeps things easier.
-            //       Make sure that doesn't break anything also.
             Config.InnerRadius = sliderInnerDiskRadius.Value;
 
             labelInnerDiskRadiusValue.Content = Config.InnerRadius.ToString("0");
 
-            // TODO: Use a property for InnerDisk, etc...
             TheMainWindow.InnerDisk.Width = 2 * Config.InnerRadius;
             TheMainWindow.InnerDisk.Height = 2 * Config.InnerRadius;
 
+            // TODO: Fix resizing the window being jittery if the window dimensions actually end up changing.
             TheMainWindow.ResizeWindow();
         }
 
@@ -191,6 +194,11 @@ namespace OvalDock
 
                 textBoxOuterDiskIcon.Text = Config.OuterDiskImagePath;
             }
+        }
+
+        private void Window_Closed(object sender, EventArgs e)
+        {
+            IsWindowActive = false;
         }
     }
 }

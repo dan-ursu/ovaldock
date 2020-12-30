@@ -181,7 +181,8 @@ namespace OvalDock
             quitItem.Click +=
                 (s, e) =>
                 {
-                    Close();
+                    //Close(); // Close() only shuts down the current window. This doesn't work if there are other windows open.
+                    Application.Current.Shutdown();
                 };
 
             System.Windows.Forms.ToolStripMenuItem settingsItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -189,9 +190,13 @@ namespace OvalDock
             settingsItem.Click +=
                 (s, e) =>
                 {
-                    // TODO: Handle previewing of settings somehow.
+                    if(ProgramSettingsWindow.IsWindowActive)
+                    {
+                        MessageBox.Show("Settings window already active");
+                        return;
+                    }
                     ProgramSettingsWindow settingsWindow = new ProgramSettingsWindow(this);
-                    settingsWindow.ShowDialog();
+                    settingsWindow.Show();
                 };
 
             System.Windows.Forms.ContextMenuStrip contextMenu = new System.Windows.Forms.ContextMenuStrip();
