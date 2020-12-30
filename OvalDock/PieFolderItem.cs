@@ -25,19 +25,12 @@ namespace OvalDock
                 if (base.Icon.ImageBitmap != null)
                     return base.Icon;
 
-                // Cache and use default icon otherwise
-                try
-                {
-                    // Clone because we CAN modify the icon directly later.
-                    // Load cache on main copy beforehand to do as little work on the rest of the copies as possible.
-                    Config.FolderDefaultIcon.CreateCache();
-                    base.Icon = Config.FolderDefaultIcon.Copy();
-                    return base.Icon;
-                }
-                catch(Exception e)
-                {
-                    return null; // TODO: Check what happens if no valid default folder icon.
-                }
+                // Use the default icon otherwise
+                // Clone because we CAN modify the icon directly later.
+                // Load cache on main copy beforehand to do as little work on the rest of the copies as possible.
+                Config.FolderDefaultIcon.CreateCache();
+                base.Icon = Config.FolderDefaultIcon.Copy();
+                return base.Icon;
             }
         }
 
