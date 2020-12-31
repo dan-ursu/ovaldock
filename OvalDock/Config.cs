@@ -49,27 +49,27 @@ namespace OvalDock
         {
             ProgramName = "OvalDock";
 
-            ItemSaveLocation = "items.xml";
-            ProgramSaveLocation = "config.xml";
+            ItemSaveLocation = @".\config\items.xml";
+            ProgramSaveLocation = @".\config\config.xml";
 
-            InnerDiskImagePath = @".\System\Icons\Windows Logo.png";
+            InnerDiskImagePath = @".\icons\windows.png";
             InnerRadius = 50;
             InnerDiskNormalOpacity = 1.0;
             InnerDiskMouseDownOpacity = 0.5;
 
-            OuterDiskImagePath = @".\System\Background\circle.png";
-            OuterRadius = 200;
+            OuterDiskImagePath = @".\icons\circle.png";
+            OuterRadius = 160;
             OuterDiskNormalOpacity = 1.0;
             OuterDiskMouseDownOpacity = 0.5;
 
             FileNotFoundIcon = new CachedImage();
-            FileNotFoundIcon.ImagePath = @".\system\Icons\firewire.png";
+            FileNotFoundIcon.ImagePath = @".\icons\file_not_found.png";
             FolderDefaultIcon = new CachedImage();
-            FolderDefaultIcon.ImagePath = @".\System\Icons\My Documents.png";
-            PieItemSize = 50;
+            FolderDefaultIcon.ImagePath = @".\icons\folder.png";
+            PieItemSize = 60;
             PieItemNormalOpacity = 1.0;
             PieItemMouseDownOpacity = 0.5;
-            PieItemRadiusFromCenter = 325;
+            PieItemRadiusFromCenter = 190;
 
             PieItemLabelPadding = 20;
             PieItemLabelSize = 20;
