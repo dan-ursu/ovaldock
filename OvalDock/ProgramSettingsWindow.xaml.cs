@@ -215,6 +215,7 @@ namespace OvalDock
         private void Window_Closed(object sender, EventArgs e)
         {
             IsWindowActive = false;
+            Config.SaveProgramSettings();
         }
 
         private void buttonItemFileNotFoundIcon_Click(object sender, RoutedEventArgs e)

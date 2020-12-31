@@ -62,7 +62,7 @@ namespace OvalDock
             InitializeComponent();
 
             // TODO: Organize this better? Or rename LoadConfig() to LoadProgramConfig()?
-            Config.LoadConfig();
+            Config.LoadProgramSettings();
             RootFolder = Config.LoadItems();
 
             CurrentFolder = RootFolder;
