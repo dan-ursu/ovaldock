@@ -52,7 +52,7 @@ namespace OvalDock
             ItemSaveLocation = @".\config\items.xml";
             ProgramSaveLocation = @".\config\config.xml";
 
-            InnerDiskImagePath = @".\icons\windows.png";
+            InnerDiskImagePath = @".\icons\inner.png";
             InnerRadius = 50;
             InnerDiskNormalOpacity = 1.0;
             InnerDiskMouseDownOpacity = 0.5;
