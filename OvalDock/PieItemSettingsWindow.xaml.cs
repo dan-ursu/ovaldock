@@ -58,7 +58,7 @@ namespace OvalDock
 
             if (item.IsCustomIcon)
             {
-                textBoxIcon.Text = (item.IconPath == null) ? "" : item.IconPath;
+                textBoxIcon.Text = (item.Icon.ImagePath == null) ? "" : item.Icon.ImagePath;
                 checkBoxIcon.IsChecked = true;
                 checkBoxIcon_Checked(null, null);
             }

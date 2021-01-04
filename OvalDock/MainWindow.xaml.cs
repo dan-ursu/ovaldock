@@ -41,16 +41,17 @@ namespace OvalDock
         // End of hotkey code
 
 
-        private System.Windows.Controls.Image innerDisk;
+        public System.Windows.Controls.Image InnerDisk { get; private set; }
+        public System.Windows.Controls.Image OuterDisk { get; private set; }
 
         private bool dragged = false;
 
         // TODO: Probably more hassle than it's worth, but should this second argument be the inner circle icon somehow?
-        private PieFolderItem rootFolder;
-        private PieFolderItem currentFolder;
+        public PieFolderItem RootFolder { get; private set; }
+        public PieFolderItem CurrentFolder { get; private set; }
 
-        private List<Button> itemButtons;
-        private List<KeyValuePair<Button, Label>> itemLabels;
+        public List<Button> ItemButtons { get; }
+        public List<KeyValuePair<Button, Label>> ItemLabels { get; }
 
         // Unfortunately have to rely on Windows Forms for this.
         // .csproj was modified to use Windows Forms as well.
@@ -61,13 +62,13 @@ namespace OvalDock
             InitializeComponent();
 
             // TODO: Organize this better? Or rename LoadConfig() to LoadProgramConfig()?
-            Config.LoadConfig();
-            rootFolder = Config.LoadItems();
+            Config.LoadProgramSettings();
+            RootFolder = Config.LoadItems();
 
-            currentFolder = rootFolder;
+            CurrentFolder = RootFolder;
 
-            itemButtons = new List<Button>();
-            itemLabels = new List<KeyValuePair<Button, Label>>();
+            ItemButtons = new List<Button>();
+            ItemLabels = new List<KeyValuePair<Button, Label>>();
 
             ResizeWindow();
 
@@ -78,7 +79,7 @@ namespace OvalDock
 
             CreateNotifyIcon();
 
-            PreloadIconsRecursive(rootFolder);
+            PreloadIconsRecursive(RootFolder);
             RefreshFolder();
         }
 
@@ -131,7 +132,7 @@ namespace OvalDock
 
 
         // Preload the icons for speed
-        private void PreloadIconsRecursive(PieFolderItem folder)
+        public void PreloadIconsRecursive(PieFolderItem folder)
         {
             // Force each icon to load (at least) once.
             // Preloading is handled in the IconAsBitmapSource property.
@@ -140,11 +141,11 @@ namespace OvalDock
             // The second time, it has already been preloaded.
             BitmapSource temp;
 
-            temp = folder.IconAsBitmapSource;
+            folder.Icon.CreateCache();
 
             foreach (PieItem item in folder.Items)
             {
-                temp = item.IconAsBitmapSource;
+                item.Icon.CreateCache();
             }
 
             foreach (PieItem item in folder.Items)
@@ -156,14 +157,16 @@ namespace OvalDock
             }
         }
 
-        private void ResizeWindow()
+        public void ResizeWindow()
         {
             // Plenty of space, so that labels can go quite a bit out of "bounds"
-            mainWindow.Width = 3 * Config.OuterRadius;
-            mainWindow.Height = 3 * Config.OuterRadius;
+            double maxRadius = Math.Max(Config.InnerRadius, Config.OuterRadius);
 
-            mainGrid.Width = 3 * Config.OuterRadius;
-            mainGrid.Height = 3 * Config.OuterRadius;
+            mainWindow.Width = 3 * maxRadius;
+            mainWindow.Height = 3 * maxRadius;
+
+            mainGrid.Width = 3 * maxRadius;
+            mainGrid.Height = 3 * maxRadius;
         }
 
         private void CreateNotifyIcon()
@@ -173,15 +176,32 @@ namespace OvalDock
             notifyIcon.Text = Config.ProgramName;
             notifyIcon.Visible = true;
 
-            System.Windows.Forms.ContextMenuStrip contextMenu = new System.Windows.Forms.ContextMenuStrip();
             System.Windows.Forms.ToolStripMenuItem quitItem = new System.Windows.Forms.ToolStripMenuItem();
             quitItem.Text = "Quit";
             quitItem.Click +=
                 (s, e) =>
                 {
-                    Close();
+                    //Close(); // Close() only shuts down the current window. This doesn't work if there are other windows open.
+                    Application.Current.Shutdown();
                 };
 
+            System.Windows.Forms.ToolStripMenuItem settingsItem = new System.Windows.Forms.ToolStripMenuItem();
+            settingsItem.Text = "Settings";
+            settingsItem.Click +=
+                (s, e) =>
+                {
+                    if(ProgramSettingsWindow.IsWindowActive)
+                    {
+                        MessageBox.Show("Settings window already active");
+                        return;
+                    }
+                    ProgramSettingsWindow settingsWindow = new ProgramSettingsWindow(this);
+                    settingsWindow.Show();
+                };
+
+            System.Windows.Forms.ContextMenuStrip contextMenu = new System.Windows.Forms.ContextMenuStrip();
+
+            contextMenu.Items.Add(settingsItem);
             contextMenu.Items.Add(quitItem);
 
             notifyIcon.ContextMenuStrip = contextMenu;
@@ -237,23 +257,25 @@ namespace OvalDock
 
         private void CreateOuterDisk()
         {
-            var outerDisk = new System.Windows.Controls.Image();
+            OuterDisk = new System.Windows.Controls.Image();
 
             //outerDisk.Source = new BitmapImage(new Uri(outerDiskImagePath));
-            outerDisk.Source = Util.ToBitmapImage(new Bitmap(Config.OuterDiskImagePath));
-            outerDisk.Width = 2 * Config.OuterRadius;
-            outerDisk.Height = 2 * Config.OuterRadius;
+            OuterDisk.Source = Util.ToBitmapImage(new Bitmap(Config.OuterDiskImagePath));
+            OuterDisk.Width = 2 * Config.OuterRadius;
+            OuterDisk.Height = 2 * Config.OuterRadius;
 
             //var margin = new Thickness();
             //margin.Left = 0;
             //margin.Top = 0;
             //outerDisk.Margin = margin;
 
-            outerDisk.HorizontalAlignment = HorizontalAlignment.Center;
-            outerDisk.VerticalAlignment = VerticalAlignment.Center;
+            OuterDisk.Opacity = Config.OuterDiskNormalOpacity;
+
+            OuterDisk.HorizontalAlignment = HorizontalAlignment.Center;
+            OuterDisk.VerticalAlignment = VerticalAlignment.Center;
 
             //outerDisk.MouseRightButtonUp += OuterDisk_MouseRightButtonUp;
-            outerDisk.MouseLeftButtonDown += OuterDisk_MouseLeftButtonDown;
+            OuterDisk.MouseLeftButtonDown += OuterDisk_MouseLeftButtonDown;
 
             // Create the context menu
             MenuItem addMenuItem = new MenuItem();
@@ -263,39 +285,41 @@ namespace OvalDock
                 {
                     // TODO: This feels inefficient, but PieItemSettingsWindow(null, ...) feels like something might break
                     PieItem newItem = new FileItem(false, null, false, null, null, null, FileItemType.File);
-                    PieItemSettingsWindow pieItemSettingsWindow = new PieItemSettingsWindow(newItem, currentFolder);
+                    PieItemSettingsWindow pieItemSettingsWindow = new PieItemSettingsWindow(newItem, CurrentFolder);
                     pieItemSettingsWindow.ShowDialog();
 
                     if (pieItemSettingsWindow.Saved)
                     {
-                        currentFolder.Items.Add(pieItemSettingsWindow.NewPieItem);
+                        CurrentFolder.Items.Add(pieItemSettingsWindow.NewPieItem);
                         RefreshFolder();
-                        Config.SaveItems(rootFolder);
+                        Config.SaveItems(RootFolder);
                     }
                 };
 
-            outerDisk.ContextMenu = new ContextMenu();
-            outerDisk.ContextMenu.Items.Add(addMenuItem);
+            OuterDisk.ContextMenu = new ContextMenu();
+            OuterDisk.ContextMenu.Items.Add(addMenuItem);
 
-            mainGrid.Children.Add(outerDisk);
+            mainGrid.Children.Add(OuterDisk);
         }
 
         private void CreateInnerDisk()
         {
-            innerDisk = new System.Windows.Controls.Image();
+            InnerDisk = new System.Windows.Controls.Image();
 
             // innerDisk.Source = ToBitmapImage(new Bitmap(Config.InnerDiskImagePath));
-            innerDisk.Source = currentFolder.IconAsBitmapSource;
+            InnerDisk.Source = CurrentFolder.Icon.ImageBitmapSource;
 
-            innerDisk.Width = 2 * Config.InnerRadius;
-            innerDisk.Height = 2 * Config.InnerRadius;
+            InnerDisk.Opacity = Config.InnerDiskNormalOpacity;
 
-            innerDisk.HorizontalAlignment = HorizontalAlignment.Center;
-            innerDisk.VerticalAlignment = VerticalAlignment.Center;
+            InnerDisk.Width = 2 * Config.InnerRadius;
+            InnerDisk.Height = 2 * Config.InnerRadius;
 
-            innerDisk.MouseLeftButtonDown += InnerDisk_MouseLeftButtonDown;
+            InnerDisk.HorizontalAlignment = HorizontalAlignment.Center;
+            InnerDisk.VerticalAlignment = VerticalAlignment.Center;
 
-            mainGrid.Children.Add(innerDisk);
+            InnerDisk.MouseLeftButtonDown += InnerDisk_MouseLeftButtonDown;
+
+            mainGrid.Children.Add(InnerDisk);
         }
 
         // Add items based on folder's items.
@@ -304,7 +328,7 @@ namespace OvalDock
         {
             ClearItems();
 
-            currentFolder = folder;
+            CurrentFolder = folder;
 
             // Add items
             for (int i = 0; i < folder.Items.Count; i++)
@@ -313,32 +337,93 @@ namespace OvalDock
             }
 
             // Change center icon
-            innerDisk.Source = folder.IconAsBitmapSource;
+            InnerDisk.Source = folder.Icon.ImageBitmapSource;
         }
 
         // To be used if an item was changed in this folder.
-        private void RefreshFolder()
+        public void RefreshFolder()
         {
-            SwitchToFolder(currentFolder);
+            SwitchToFolder(CurrentFolder);
+        }
+
+        // Refresh the "file not found" icons.
+        // TODO: This is inefficient. Will refresh if not using a custom icon
+        //       but successfully loaded an icon from the file.
+        // TODO: This is also awful. Much better to be rid of the Copy() portion used somewhere
+        //       and just directly pointed to Config.FileNotFoundIcon.
+        public void ClearCachedImagesFileNotFound(PieFolderItem folder, string oldPath, string newPath)
+        {
+            foreach(PieItem item in folder.Items)
+            {
+                if(item is FileItem && !item.IsCustomIcon && item.Icon.ImagePath == oldPath)
+                {
+                    item.Icon.ClearCache();
+                    item.Icon.ImagePath = newPath;
+                }
+                else if(item is PieFolderItem)
+                {
+                    ClearCachedImagesFileNotFound((PieFolderItem)item, oldPath, newPath);
+                }
+            }
+        }
+
+        // TODO: Similar here.
+        public void ClearCachedImagesDefaultFolder(PieFolderItem folder, string oldPath, string newPath)
+        {
+            if (!folder.IsCustomIcon && folder.Icon.ImagePath == oldPath)
+            {
+                folder.Icon.ClearCache();
+                folder.Icon.ImagePath = newPath;
+            }                
+
+            foreach(PieItem item in folder.Items)
+            {
+                if(item is PieFolderItem)
+                {
+                    ClearCachedImagesDefaultFolder((PieFolderItem)item, oldPath, newPath);
+                }
+            }
+        }
+
+        // TODO: This whole keeping track of buttons business is a bit ugly. Redo it at some point.
+        public void UpdateItemButtonAppearance(Button itemButton, int number, int totalItems)
+        {
+            itemButton.Width = Config.PieItemSize;
+            itemButton.Height = Config.PieItemSize;
+            itemButton.Opacity = Config.PieItemNormalOpacity;
+
+            // To be spread evenly in a circle.
+            var buttonMargin = new Thickness();
+            buttonMargin.Left = Config.PieItemRadiusFromCenter * Math.Cos(number * 2 * Math.PI / totalItems);
+            buttonMargin.Top = Config.PieItemRadiusFromCenter * Math.Sin(number * 2 * Math.PI / totalItems);
+            itemButton.Margin = buttonMargin;
+        }
+
+        public void UpdateItemButtonAppearance()
+        {
+            for (int i = 0; i < ItemButtons.Count; i++)
+            {
+                UpdateItemButtonAppearance(ItemButtons[i], i, ItemButtons.Count);
+            }
         }
 
         private void ClearItems()
         {
-            foreach (Button button in itemButtons)
+            foreach (Button button in ItemButtons)
             {
                 mainGrid.Children.Remove(button);
             }
 
-            itemButtons.Clear();
+            ItemButtons.Clear();
 
             // This might be slightly unnecessary, but might as well remove labels for extra safety.
             // I suspect there will never be any labels anyways though.
-            foreach (var kvp in itemLabels)
+            foreach (var kvp in ItemLabels)
             {
                 mainGrid.Children.Remove(kvp.Value);
             }
 
-            itemLabels.Clear();
+            ItemLabels.Clear();
         }
 
         // This is a bit more complicated.
@@ -346,20 +431,14 @@ namespace OvalDock
         private void AddPieItem(PieItem pieItem, int number, int totalItems)
         {
             var itemImage = new System.Windows.Controls.Image();
-            itemImage.Source = pieItem.IconAsBitmapSource;
+            itemImage.Source = pieItem.Icon.ImageBitmapSource;
 
 
             var itemButton = new Button();
 
             itemButton.Content = itemImage;
-            itemButton.Width = Config.PieItemSize;
-            itemButton.Height = Config.PieItemSize;
 
-            // To be spread evenly in a circle.
-            var buttonMargin = new Thickness();
-            buttonMargin.Left = Config.PieItemRadiusFromCenter * Math.Cos(number * 2 * Math.PI / totalItems);
-            buttonMargin.Top = Config.PieItemRadiusFromCenter * Math.Sin(number * 2 * Math.PI / totalItems);
-            itemButton.Margin = buttonMargin;
+            UpdateItemButtonAppearance(itemButton, number, totalItems);
 
             itemButton.HorizontalAlignment = HorizontalAlignment.Center;
             itemButton.VerticalAlignment = VerticalAlignment.Center;
@@ -394,7 +473,7 @@ namespace OvalDock
 
                     label.FontSize = Config.PieItemLabelSize;
 
-                    itemLabels.Add(new KeyValuePair<Button, Label>(itemButton, label));
+                    ItemLabels.Add(new KeyValuePair<Button, Label>(itemButton, label));
                     mainGrid.Children.Add(label);
                 };
 
@@ -402,7 +481,7 @@ namespace OvalDock
                 (s, e) =>
                 {
                     // Delete the label corresponding to the button.
-                    foreach (KeyValuePair<Button, Label> itemLabel in itemLabels)
+                    foreach (KeyValuePair<Button, Label> itemLabel in ItemLabels)
                     {
                         if (itemLabel.Key == itemButton)
                         {
@@ -411,7 +490,7 @@ namespace OvalDock
                     }
 
                     // I suspect this might be a memory leak if we don't include this line?
-                    itemLabels.RemoveAll((kvp) => { return kvp.Key == itemButton; });
+                    ItemLabels.RemoveAll((kvp) => { return kvp.Key == itemButton; });
                 };
 
             // Create the context menu
@@ -420,21 +499,21 @@ namespace OvalDock
             settingsMenuItem.Click +=
                 (s, e) =>
                 {
-                    PieItemSettingsWindow pieItemSettingsWindow = new PieItemSettingsWindow(pieItem, currentFolder);
+                    PieItemSettingsWindow pieItemSettingsWindow = new PieItemSettingsWindow(pieItem, CurrentFolder);
                     pieItemSettingsWindow.ShowDialog();
 
                     // Replace the old pieItem with the new one
                     if (pieItemSettingsWindow.Saved)
                     {
-                        int i = currentFolder.Items.IndexOf(pieItem);
+                        int i = CurrentFolder.Items.IndexOf(pieItem);
 
                         // You know, I feel like this should never happen
                         if (i == -1)
                             return;
 
-                        currentFolder.Items[i] = pieItemSettingsWindow.NewPieItem;
+                        CurrentFolder.Items[i] = pieItemSettingsWindow.NewPieItem;
                         RefreshFolder();
-                        Config.SaveItems(rootFolder);
+                        Config.SaveItems(RootFolder);
                     }
                 };
 
@@ -443,9 +522,9 @@ namespace OvalDock
             removeMenuItem.Click +=
                 (s, e) =>
                 {
-                    currentFolder.Items.Remove(pieItem);
+                    CurrentFolder.Items.Remove(pieItem);
                     RefreshFolder();
-                    Config.SaveItems(rootFolder);
+                    Config.SaveItems(RootFolder);
                 };
 
             itemButton.ContextMenu = new ContextMenu();
@@ -455,7 +534,7 @@ namespace OvalDock
 
             //TODO: Figure out transparency of background/border on hover.
 
-            itemButtons.Add(itemButton);
+            ItemButtons.Add(itemButton);
             mainGrid.Children.Add(itemButton);
         }
 
@@ -467,7 +546,13 @@ namespace OvalDock
         // TODO: Use a button for the inner disk instead of an image? Can't currently figure out buttons with a non-square border.
         private void InnerDisk_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
-            innerDisk.Opacity = 0.5;
+            InnerDisk.Opacity = Config.InnerDiskMouseDownOpacity;
+            OuterDisk.Opacity = Config.OuterDiskMouseDownOpacity;
+
+            foreach(Button button in ItemButtons)
+            {
+                button.Opacity = Config.PieItemMouseDownOpacity;
+            }
 
             dragged = false;
 
@@ -477,18 +562,24 @@ namespace OvalDock
             // TODO: DragMove() is preventing the opacity from instantly changing if we're holding the mouse still. Fix.
             DragMove();
 
-            innerDisk.Opacity = 1.0;
+            InnerDisk.Opacity = Config.InnerDiskNormalOpacity;
+            OuterDisk.Opacity = Config.OuterDiskNormalOpacity;
+
+            foreach (Button button in ItemButtons)
+            {
+                button.Opacity = Config.PieItemNormalOpacity;
+            }
 
             // Hacky way to handle mouse click on the inner disk.
             if (!dragged)
             {
-                if (currentFolder.PrevFolder == null)
+                if (CurrentFolder.PrevFolder == null)
                 {
                     ToggleVisibility();
                 }
                 else
                 {
-                    SwitchToFolder(currentFolder.PrevFolder);
+                    SwitchToFolder(CurrentFolder.PrevFolder);
                 }
             }
 
@@ -497,7 +588,24 @@ namespace OvalDock
 
         private void OuterDisk_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
+            // TODO: There is a lot of code duplication between the inner disk and outer disk methods. Fix.
+            InnerDisk.Opacity = Config.InnerDiskMouseDownOpacity;
+            OuterDisk.Opacity = Config.OuterDiskMouseDownOpacity;
+
+            foreach (Button button in ItemButtons)
+            {
+                button.Opacity = Config.PieItemMouseDownOpacity;
+            }
+
             DragMove();
+
+            InnerDisk.Opacity = Config.InnerDiskNormalOpacity;
+            OuterDisk.Opacity = Config.OuterDiskNormalOpacity;
+
+            foreach (Button button in ItemButtons)
+            {
+                button.Opacity = Config.PieItemNormalOpacity;
+            }
         }
     }
 }

@@ -27,15 +27,15 @@ namespace OvalDock
 
         public string Arguments { get; private set; }
 
-        public override BitmapSource IconAsBitmapSource
+        public override CachedImage Icon
         {
             get
             {
-                // Preloaded or custom icon handled in base class.
-                if (base.IconAsBitmapSource != null)
-                    return base.IconAsBitmapSource;
+                // Check to make sure we have a BitmapSource cached.
+                if (base.Icon.ImageBitmapSource != null)
+                    return base.Icon;
 
-                // File icon handled here.
+                // Extract the file icon as a BitmapSource otherwise.
                 // TODO: Just copy pasted this code from somewhere.
                 try
                 {
@@ -47,16 +47,23 @@ namespace OvalDock
                     sysicon.Dispose();
 
                     // Icon extracted. Save for later and return.
-                    iconAsBitmapSource = bmpSrc;
-                    return bmpSrc;
+                    base.Icon.ImageBitmapSource = bmpSrc;
+                    return base.Icon;
                 }
                 catch (Exception e)
                 {
-                    // Icon could not be extracted. Save the default for later and return.
-                    iconAsBitmapSource = Util.ToBitmapImage(Config.PieFileNotFoundIcon);
-                    return iconAsBitmapSource;
+                    // Icon could not be extracted. Use the "file not found" icon then.
+                    // TODO: The default CAN be null? What happens then?
+                    //
+                    // Clone because we CAN modify the icon directly later.
+                    // Load cache on main copy beforehand to do as little work on the rest of the copies as possible.
+                    //
+                    // TODO: This whole cloning technique is not great.
+                    //       There is no way to conveniently check if we are using a "file not found" icon.
+                    Config.FileNotFoundIcon.CreateCache();
+                    base.Icon = Config.FileNotFoundIcon.Copy();
+                    return base.Icon;
                 }
-
             }
         }
 
@@ -106,36 +113,39 @@ namespace OvalDock
                 return;
             }
 
+            ProcessStartInfo processStartInfo = new ProcessStartInfo();
+
+            processStartInfo.FileName = FilePath;
+            processStartInfo.Arguments = Arguments;
+
+            // TODO: Are there other executable file types? .msi? .com?
+            if (File.Exists(FilePath) && FilePath.EndsWith(".exe"))
+            {
+                string workingDirectory = Path.GetDirectoryName(FilePath);
+
+                if(workingDirectory != null && workingDirectory != "")
+                {
+                    processStartInfo.WorkingDirectory = workingDirectory;
+                }
+            }
+            else
+            {
+                // ProcessStartInfo.UseShellExecute Property
+                // true if the shell should be used when starting the process;
+                // false if the process should be created directly from the executable file.
+                // The default is true on .NET Framework apps and false on .NET Core apps.
+                processStartInfo.UseShellExecute = true;
+            }
+
             try
             {
-                // TODO: Are there other executable file types? .msi? .com?
-                if (File.Exists(FilePath) && FilePath.EndsWith(".exe"))
-                {
-                    Process.Start(FilePath);
-                }
-                else
-                {
-                    // ProcessStartInfo.UseShellExecute Property
-                    // true if the shell should be used when starting the process;
-                    // false if the process should be created directly from the executable file.
-                    // The default is true on .NET Framework apps and false on .NET Core apps.
-
-                    //TODO: IMPLEMENT ARGUMENTS!
-                    ProcessStartInfo processStartInfo = new ProcessStartInfo();
-
-                    processStartInfo.FileName = FilePath;
-                    processStartInfo.UseShellExecute = true;
-                    processStartInfo.Arguments = Arguments;
-
-                    Process.Start(processStartInfo);
-                }
-
+                Process.Start(processStartInfo);
                 mainWindow.ToggleVisibility();
             }
             catch (Exception e)
             {
                 MessageBox.Show("Something went wrong - tell a programmer.");
-            }
+            }           
         }
 
         public override void SaveConfig(XmlElement element)
