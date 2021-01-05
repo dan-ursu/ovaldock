@@ -21,7 +21,7 @@
         <CheckBox x:Name="checkBoxIcon" Content="Custom Icon" HorizontalAlignment="Left" Margin="145,37,0,0" VerticalAlignment="Top" Checked="checkBoxIcon_Checked" Unchecked="checkBoxIcon_Unchecked"/>
         <TextBox x:Name="textBoxIcon" HorizontalAlignment="Left" Margin="246,35,0,0" TextWrapping="NoWrap" VerticalAlignment="Top" Width="298" Height="18" />
         <Button x:Name="buttonBrowseIcon" Content="Browse" HorizontalAlignment="Left" Margin="549,35,0,0" VerticalAlignment="Top" Width="60" Height="18" Click="buttonBrowseIcon_Click"/>
-        <RadioButton x:Name="radioButtonPieFolder" Content="Pie folder" HorizontalAlignment="Left" Margin="16,82,0,0" VerticalAlignment="Top" Width="99" Checked="radioButtonPieFolder_Checked"/>
+        <RadioButton x:Name="radioButtonPieFolder" Content="Dock folder" HorizontalAlignment="Left" Margin="16,82,0,0" VerticalAlignment="Top" Width="99" Checked="radioButtonPieFolder_Checked"/>
         <Button x:Name="buttonSave" Content="Save" HorizontalAlignment="Left" Margin="125,115,0,0" VerticalAlignment="Top" Width="100" IsDefault="True" Click="buttonSave_Click"/>
         <Button x:Name="buttonCancel" Content="Cancel" HorizontalAlignment="Left" Margin="334,115,0,0" VerticalAlignment="Top" Width="100" IsCancel="True" Click="buttonCancel_Click"/>
 
