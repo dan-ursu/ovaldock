@@ -474,6 +474,10 @@ namespace OvalDock
                     label.FontSize = Config.PieItemLabelSize;
 
                     ItemLabels.Add(new KeyValuePair<Button, Label>(itemButton, label));
+
+                    // This fixes the flashing button issue if the mouse is on top of both the button and the label.
+                    label.IsHitTestVisible = false;
+
                     mainGrid.Children.Add(label);
                 };
 

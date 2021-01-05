@@ -1,7 +1,5 @@
 ﻿Add the ability to use a custom working directory.
 
-Add the ability to use .lnk files. Copy info or use them directly?
-
 After switching custom icon, old icon still in use and unable to delete.
 
 Folder item by default should use the windows folder icon, NOT the missing folder icon.
@@ -9,5 +7,3 @@ Folder item by default should use the windows folder icon, NOT the missing folde
 Is there any way in the settings to change where on the circle each icon goes? Also, I didn't see any way of changing the order of the icons without removing them.
 
 Unchecking custom icon doesn't change the icon the first time around, but works if going to settings -> save again. Perhaps due to path still being kept the first time around?
-
-Button highlight tends to flash if mouse cursor is too low on it. Has to do with the labels? Set labels to inactive?
