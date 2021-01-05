@@ -35,36 +35,73 @@ namespace OvalDock
                 if (base.Icon.ImageBitmapSource != null)
                     return base.Icon;
 
-                // Extract the file icon as a BitmapSource otherwise.
-                // TODO: Just copy pasted this code from somewhere.
-                try
+                // No cache. Different cache needed to be generated based on type.
+                switch(Type)
                 {
-                    var sysicon = System.Drawing.Icon.ExtractAssociatedIcon(FilePath);
-                    var bmpSrc = System.Windows.Interop.Imaging.CreateBitmapSourceFromHIcon(
-                                sysicon.Handle,
-                                System.Windows.Int32Rect.Empty,
-                                System.Windows.Media.Imaging.BitmapSizeOptions.FromEmptyOptions());
-                    sysicon.Dispose();
+                    case FileItemType.File:
+                        // Extract the file icon as a BitmapSource otherwise.
+                        // TODO: Just copy pasted this code from somewhere.
+                        try
+                        {
+                            var sysicon = System.Drawing.Icon.ExtractAssociatedIcon(FilePath);
+                            var bmpSrc = System.Windows.Interop.Imaging.CreateBitmapSourceFromHIcon(
+                                        sysicon.Handle,
+                                        System.Windows.Int32Rect.Empty,
+                                        System.Windows.Media.Imaging.BitmapSizeOptions.FromEmptyOptions());
+                            sysicon.Dispose();
 
-                    // Icon extracted. Save for later and return.
-                    base.Icon.ImageBitmapSource = bmpSrc;
-                    return base.Icon;
+                            // Icon extracted. Save for later and return.
+                            base.Icon.ImageBitmapSource = bmpSrc;
+                            return base.Icon;
+                        }
+                        catch (Exception e)
+                        {
+                            SetFileNotFoundIcon();
+                            return base.Icon;
+                        }
+
+                    case FileItemType.Folder:
+                        if(!Directory.Exists(FilePath))
+                        {
+                            SetFileNotFoundIcon();
+                            return base.Icon;
+                        }
+
+                        // TODO: I really hope this method never breaks for some stupid reason.
+                        System.Drawing.Icon icon = Win32Helper.GetIcon(FilePath);
+
+                        // Possibly unnecessary.
+                        base.Icon.ClearCache();
+                        base.Icon.ImagePath = null;
+
+                        base.Icon.ImageBitmap = icon.ToBitmap();
+                        return base.Icon;
+
+                    case FileItemType.Other:
+                        SetFileNotFoundIcon();
+                        return base.Icon;
+
+                    default: // This should never happen
+                        SetFileNotFoundIcon();
+                        return base.Icon;
                 }
-                catch (Exception e)
-                {
-                    // Icon could not be extracted. Use the "file not found" icon then.
-                    // TODO: The default CAN be null? What happens then?
-                    //
-                    // Clone because we CAN modify the icon directly later.
-                    // Load cache on main copy beforehand to do as little work on the rest of the copies as possible.
-                    //
-                    // TODO: This whole cloning technique is not great.
-                    //       There is no way to conveniently check if we are using a "file not found" icon.
-                    Config.FileNotFoundIcon.CreateCache();
-                    base.Icon = Config.FileNotFoundIcon.Copy();
-                    return base.Icon;
-                }
+
+                
             }
+        }
+
+        private void SetFileNotFoundIcon()
+        {
+            // Icon could not be extracted. Use the "file not found" icon then.
+            // TODO: The default CAN be null? What happens then?
+            //
+            // Clone because we CAN modify the icon directly later.
+            // Load cache on main copy beforehand to do as little work on the rest of the copies as possible.
+            //
+            // TODO: This whole cloning technique is not great.
+            //       There is no way to conveniently check if we are using a "file not found" icon.
+            Config.FileNotFoundIcon.CreateCache();
+            base.Icon = Config.FileNotFoundIcon.Copy();
         }
 
         public override string Name
