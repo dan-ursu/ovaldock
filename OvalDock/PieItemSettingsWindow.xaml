@@ -12,14 +12,14 @@
         <RadioButton x:Name="radioButtonFolder" Content="Folder" HorizontalAlignment="Left" Margin="16,52,0,0" VerticalAlignment="Top" Checked="radioButtonFolder_Checked"/>
         <RadioButton x:Name="radioButtonOther" Content="Other (ex: URL)" HorizontalAlignment="Left" Margin="16,67,0,0" VerticalAlignment="Top" Checked="radioButtonOther_Checked"/>
         <Label x:Name="labelTarget" Content="Target" HorizontalAlignment="Left" Margin="141,56,0,0" VerticalAlignment="Top"/>
-        <TextBox x:Name="textBoxTarget" HorizontalAlignment="Left" Margin="246,58,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="298" Height="18" />
+        <TextBox x:Name="textBoxTarget" HorizontalAlignment="Left" Margin="246,58,0,0" TextWrapping="NoWrap" VerticalAlignment="Top" Width="298" Height="18" />
         <Button x:Name="buttonBrowseTarget" Content="Browse" HorizontalAlignment="Left" Margin="549,58,0,0" VerticalAlignment="Top" Width="60" Height="18" Click="buttonBrowseTarget_Click"/>
         <Label x:Name="labelArguments" Content="Arguments" HorizontalAlignment="Left" Margin="141,78,0,0" VerticalAlignment="Top"/>
-        <TextBox x:Name="textBoxArguments" HorizontalAlignment="Left" Margin="246,82,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="298" Height="18" />
-        <TextBox x:Name="textBoxName" HorizontalAlignment="Left" Margin="246,12,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="298" Height="18" />
+        <TextBox x:Name="textBoxArguments" HorizontalAlignment="Left" Margin="246,82,0,0" TextWrapping="NoWrap" VerticalAlignment="Top" Width="298" Height="18" />
+        <TextBox x:Name="textBoxName" HorizontalAlignment="Left" Margin="246,12,0,0" TextWrapping="NoWrap" VerticalAlignment="Top" Width="298" Height="18" />
         <CheckBox x:Name="checkBoxName" Content="Custom name" HorizontalAlignment="Left" Margin="145,14,0,0" VerticalAlignment="Top" Checked="checkBoxName_Checked" Unchecked="checkBoxName_Unchecked"/>
         <CheckBox x:Name="checkBoxIcon" Content="Custom Icon" HorizontalAlignment="Left" Margin="145,37,0,0" VerticalAlignment="Top" Checked="checkBoxIcon_Checked" Unchecked="checkBoxIcon_Unchecked"/>
-        <TextBox x:Name="textBoxIcon" HorizontalAlignment="Left" Margin="246,35,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="298" Height="18" />
+        <TextBox x:Name="textBoxIcon" HorizontalAlignment="Left" Margin="246,35,0,0" TextWrapping="NoWrap" VerticalAlignment="Top" Width="298" Height="18" />
         <Button x:Name="buttonBrowseIcon" Content="Browse" HorizontalAlignment="Left" Margin="549,35,0,0" VerticalAlignment="Top" Width="60" Height="18" Click="buttonBrowseIcon_Click"/>
         <RadioButton x:Name="radioButtonPieFolder" Content="Pie folder" HorizontalAlignment="Left" Margin="16,82,0,0" VerticalAlignment="Top" Width="99" Checked="radioButtonPieFolder_Checked"/>
         <Button x:Name="buttonSave" Content="Save" HorizontalAlignment="Left" Margin="125,115,0,0" VerticalAlignment="Top" Width="100" IsDefault="True" Click="buttonSave_Click"/>
