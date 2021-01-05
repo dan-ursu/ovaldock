@@ -7,7 +7,7 @@
         mc:Ignorable="d"
         Title="Item Settings" Height="177" Width="641" Background="#FFEEEEEE" ResizeMode="NoResize" Topmost="True">
     <Grid x:Name="settingsGrid">
-        <RadioButton x:Name="radioButtonFile" Content="File" HorizontalAlignment="Left" Margin="16,37,0,0" VerticalAlignment="Top" Checked="radioButtonFile_Checked"/>
+        <RadioButton x:Name="radioButtonFile" Content="File or shortcut" HorizontalAlignment="Left" Margin="16,37,0,0" VerticalAlignment="Top" Checked="radioButtonFile_Checked"/>
         <Label x:Name="labelType" Content="Type:" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top"/>
         <RadioButton x:Name="radioButtonFolder" Content="Folder" HorizontalAlignment="Left" Margin="16,52,0,0" VerticalAlignment="Top" Checked="radioButtonFolder_Checked"/>
         <RadioButton x:Name="radioButtonOther" Content="Other (ex: URL)" HorizontalAlignment="Left" Margin="16,67,0,0" VerticalAlignment="Top" Checked="radioButtonOther_Checked"/>
