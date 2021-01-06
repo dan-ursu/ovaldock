@@ -285,6 +285,9 @@ namespace OvalDock
             else
             {
                 OpenFileDialog openFileDialog = new OpenFileDialog();
+
+                openFileDialog.DereferenceLinks = false;
+
                 if (openFileDialog.ShowDialog() == true)
                 {
                     textBoxTarget.Text = openFileDialog.FileName;

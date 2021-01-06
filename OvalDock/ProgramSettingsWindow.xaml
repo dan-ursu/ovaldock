@@ -11,7 +11,7 @@
             <TabItem x:Name="tabInnerDisk" Header="Inner Disk">
                 <Grid Background="#FFE5E5E5">
                     <Label x:Name="labelInnerDiskIcon" Content="Root folder icon" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top"/>
-                    <TextBox x:Name="textBoxInnerDiskIcon" HorizontalAlignment="Left" Margin="110,14,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="428" IsEnabled="False" Height="18"/>
+                    <TextBox x:Name="textBoxInnerDiskIcon" HorizontalAlignment="Left" Margin="110,14,0,0" TextWrapping="NoWrap" VerticalAlignment="Top" Width="428" IsEnabled="False" Height="18"/>
                     <Button x:Name="buttonBrowseInnerDiskIcon" Content="Browse" HorizontalAlignment="Left" Margin="543,14,0,0" VerticalAlignment="Top" Height="18" Click="buttonBrowseInnerDiskIcon_Click"/>
                     <Label x:Name="labelInnerDiskRadius" Content="Radius" HorizontalAlignment="Left" Margin="10,37,0,0" VerticalAlignment="Top"/>
                     <Label x:Name="labelInnerDiskNormalOpacity" Content="Normal opacity" HorizontalAlignment="Left" Margin="10,63,0,0" VerticalAlignment="Top"/>
@@ -27,7 +27,7 @@
             <TabItem x:Name="tabOuterDisk" Header="Outer Disk">
                 <Grid Background="#FFE5E5E5">
                     <Label x:Name="labelOuterDiskIcon" Content="Outer disk icon" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top"/>
-                    <TextBox x:Name="textBoxOuterDiskIcon" HorizontalAlignment="Left" Margin="110,14,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="428" IsEnabled="False" Height="18"/>
+                    <TextBox x:Name="textBoxOuterDiskIcon" HorizontalAlignment="Left" Margin="110,14,0,0" TextWrapping="NoWrap" VerticalAlignment="Top" Width="428" IsEnabled="False" Height="18"/>
                     <Button x:Name="buttonBrowseOuterDiskIcon" Content="Browse" HorizontalAlignment="Left" Margin="543,14,0,0" VerticalAlignment="Top" Height="18" Click="buttonBrowseOuterDiskIcon_Click"/>
                     <Label x:Name="labelOuterDiskRadius" Content="Radius" HorizontalAlignment="Left" Margin="10,37,0,0" VerticalAlignment="Top"/>
                     <Label x:Name="labelOuterDiskNormalOpacity" Content="Normal opacity" HorizontalAlignment="Left" Margin="10,63,0,0" VerticalAlignment="Top"/>
@@ -43,7 +43,7 @@
             <TabItem x:Name="tabItemAppearence" Header="Item Appearence">
                 <Grid Background="#FFE5E5E5">
                     <Label x:Name="labelItemFileNotFoundIcon" Content="File not found icon" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top"/>
-                    <TextBox x:Name="textBoxItemFileNotFoundIcon" HorizontalAlignment="Left" Margin="131,14,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="407" IsEnabled="False" Height="18"/>
+                    <TextBox x:Name="textBoxItemFileNotFoundIcon" HorizontalAlignment="Left" Margin="131,14,0,0" TextWrapping="NoWrap" VerticalAlignment="Top" Width="407" IsEnabled="False" Height="18"/>
                     <Button x:Name="buttonItemFileNotFoundIcon" Content="Browse" HorizontalAlignment="Left" Margin="543,14,0,0" VerticalAlignment="Top" Height="18" Click="buttonItemFileNotFoundIcon_Click"/>
                     <Label x:Name="labelItemSize" Content="Item size" HorizontalAlignment="Left" Margin="10,59,0,0" VerticalAlignment="Top"/>
                     <Label x:Name="labelItemNormalOpacity" Content="Item normal opacity" HorizontalAlignment="Left" Margin="10,85,0,0" VerticalAlignment="Top"/>
@@ -58,7 +58,7 @@
                     <Slider x:Name="sliderItemRadiusFromCenter" HorizontalAlignment="Left" Margin="131,143,0,0" VerticalAlignment="Top" Width="412" Minimum="1" Maximum="400" SmallChange="1" LargeChange="10" ValueChanged="sliderItemRadiusFromCenter_ValueChanged"/>
                     <Label x:Name="labelItemRadiusFromCenterValue" Content="Label" HorizontalAlignment="Left" Margin="543,139,0,0" VerticalAlignment="Top"/>
                     <Label x:Name="labelItemFolderDefaultIcon" Content="Folder default icon" HorizontalAlignment="Left" Margin="10,33,0,0" VerticalAlignment="Top"/>
-                    <TextBox x:Name="textBoxItemFolderDefaultIcon" HorizontalAlignment="Left" Margin="131,37,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="407" IsEnabled="False" Height="18"/>
+                    <TextBox x:Name="textBoxItemFolderDefaultIcon" HorizontalAlignment="Left" Margin="131,37,0,0" TextWrapping="NoWrap" VerticalAlignment="Top" Width="407" IsEnabled="False" Height="18"/>
                     <Button x:Name="buttonItemFolderDefaultIcon" Content="Browse" HorizontalAlignment="Left" Margin="543,37,0,0" VerticalAlignment="Top" Height="18" Click="buttonItemFolderDefaultIcon_Click"/>
                 </Grid>
             </TabItem>

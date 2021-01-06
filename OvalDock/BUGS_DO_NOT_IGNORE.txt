@@ -1,0 +1,7 @@
+﻿Add the ability to use a custom working directory.
+
+After switching custom icon, old icon still in use and unable to delete.
+
+Is there any way in the settings to change where on the circle each icon goes? Also, I didn't see any way of changing the order of the icons without removing them.
+
+Unchecking custom icon doesn't change the icon the first time around, but works if going to settings -> save again. Perhaps due to path still being kept the first time around?
