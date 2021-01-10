@@ -294,5 +294,38 @@ namespace OvalDock
                 }
             }
         }
+
+        private void textBoxTarget_Drop(object sender, DragEventArgs e)
+        {
+            string[] files = (string[])e.Data.GetData(DataFormats.FileDrop);
+
+            if (files != null && files.Length != 0)
+            {
+                textBoxTarget.Text = files[0];
+            }
+        }
+
+        // No idea why this is necessary to enable drag and drop of files, but go figure
+        // https://stackoverflow.com/questions/4281857/wpf-drag-and-drop-to-a-textbox
+        private void textBoxTarget_PreviewDragOver(object sender, DragEventArgs e)
+        {
+            e.Handled = true;
+        }
+
+        private void textBoxIcon_Drop(object sender, DragEventArgs e)
+        {
+            string[] files = (string[])e.Data.GetData(DataFormats.FileDrop);
+
+            if (files != null && files.Length != 0)
+            {
+                textBoxIcon.Text = files[0];
+            }
+        }
+
+        // Same deal as with textBoxTarget_PreviewDragOver
+        private void textBoxIcon_PreviewDragOver(object sender, DragEventArgs e)
+        {
+            e.Handled = true;
+        }
     }
 }
