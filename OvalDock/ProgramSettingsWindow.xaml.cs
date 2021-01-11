@@ -294,7 +294,7 @@ namespace OvalDock
 
             labelItemSizeValue.Content = Config.PieItemSize.ToString("0");
 
-            TheMainWindow.UpdateItemButtonAppearance();
+            TheMainWindow.UpdateItemAppearance();
         }
 
         private void sliderItemNormalOpacity_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
@@ -306,7 +306,7 @@ namespace OvalDock
 
             labelItemNormalOpacityValue.Content = Config.PieItemNormalOpacity.ToString("0.##");
 
-            TheMainWindow.UpdateItemButtonAppearance();
+            TheMainWindow.UpdateItemAppearance();
         }
 
         private void sliderItemMouseDownOpacity_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
@@ -328,7 +328,7 @@ namespace OvalDock
 
             labelItemRadiusFromCenterValue.Content = Config.PieItemRadiusFromCenter.ToString("0");
 
-            TheMainWindow.UpdateItemButtonAppearance();
+            TheMainWindow.UpdateItemAppearance();
         }
     }
 }
