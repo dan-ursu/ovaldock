@@ -45,6 +45,8 @@ namespace OvalDock
         public static uint HotkeyModifiers { get; private set; }
         public static uint Hotkey { get; private set; }
 
+        public static double PieItemDragSensitivity { get; private set; }
+
         public static void LoadDefaultProgramSettings()
         {
             ProgramName = "OvalDock";
@@ -73,6 +75,8 @@ namespace OvalDock
 
             PieItemLabelPadding = 20;
             PieItemLabelSize = 20;
+
+            PieItemDragSensitivity = 20;
 
             
             

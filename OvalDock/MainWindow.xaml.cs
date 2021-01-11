@@ -483,13 +483,6 @@ namespace OvalDock
             mainGrid.Children.Add(itemInfo.ItemLabel);
 
 
-            // All the button behaviour handled here.
-            itemInfo.ItemButton.Click +=
-                (s, e) =>
-                {
-                    pieItem.LeftClick(this);
-                };
-
             itemInfo.ItemButton.MouseEnter +=
                 (s, e) =>
                 {
@@ -500,6 +493,126 @@ namespace OvalDock
                 (s, e) =>
                 {
                     itemInfo.ItemLabel.Visibility = Visibility.Hidden;
+                };
+
+            // Handle custom clicking and dragging in these next three functions.
+            // MouseDown just means the mouse has been pressed down on the button.
+            // Dragging means the mouse has moved past the given threshold while MouseDown and we started visually dragging.
+            itemInfo.ItemButton.PreviewMouseLeftButtonDown +=
+                (s, e) =>
+                {
+                    itemInfo.MouseDown = true;
+
+                    itemInfo.InitialMousePosition = Mouse.GetPosition(mainGrid);
+                };
+
+            itemInfo.ItemButton.PreviewMouseLeftButtonUp +=
+                (s, e) =>
+                {
+                    if(itemInfo.Dragging)
+                    {
+                        RefreshFolder();
+                        Config.SaveItems(RootFolder);
+                    }
+                    else
+                    {
+                        itemInfo.Item.LeftClick(this);
+                    }
+
+                    itemInfo.MouseDown = false;
+                    itemInfo.Dragging = false;
+
+                    itemInfo.ItemButton.RenderTransform = Transform.Identity;
+                    itemInfo.ItemLabel.RenderTransform = Transform.Identity;
+                };
+
+            itemInfo.ItemButton.PreviewMouseMove +=
+                (s, e) =>
+                {
+                    if(!itemInfo.MouseDown)
+                    {
+                        return;
+                    }
+
+                    var currentMousePoint = Mouse.GetPosition(mainGrid);
+
+                    if (itemInfo.Dragging)
+                    {
+                        // TODO: Constantly creating a bunch of new objects here feels inefficient.
+                        var offset = new TranslateTransform(currentMousePoint.X - itemInfo.InitialMousePosition.X, currentMousePoint.Y - itemInfo.InitialMousePosition.Y);
+
+                        itemInfo.ItemButton.RenderTransform = offset;
+                        itemInfo.ItemLabel.RenderTransform = offset;
+
+
+                        // TODO: Handle item swapping here.
+                        System.Windows.Point centerPoint = new System.Windows.Point(mainGrid.Width / 2, mainGrid.Height / 2);
+                        double angle = Math.Atan2(currentMousePoint.Y - centerPoint.Y, currentMousePoint.X - centerPoint.X);
+
+                        // Make between $0$ and $2\pi$
+                        if(angle < 0)
+                            angle += 2*Math.PI;
+
+                        // itemInfo.ItemLabel.Content = angle.ToString();
+
+                        // You're gonna need to draw a picture for this.
+                        // Sorry ahead of time.
+                        int oldPosition = CurrentFolder.Items.IndexOf(itemInfo.Item);
+                        int halfSpaces = (int)(2 * angle / (2 * Math.PI / CurrentFolder.Items.Count));
+
+                        int newPosition;
+
+                        // Probably will never get strict inequality, but safety for roundoff nonsense.
+                        if (halfSpaces <= 0 || halfSpaces >= 2 * CurrentFolder.Items.Count - 1)
+                        {
+                            newPosition = 0;
+                        }
+                        else
+                        {
+                            newPosition = (halfSpaces + 1) / 2;
+                        }
+
+                        //itemInfo.ItemLabel.Content = oldPosition.ToString();
+
+                        // Swap oldPosition and newPosition
+                        if(newPosition != oldPosition)
+                        {
+                            if(oldPosition < newPosition)
+                            {
+                                CurrentFolder.Items.Insert(newPosition + 1, itemInfo.Item);
+                                CurrentFolder.Items.RemoveAt(oldPosition);
+                            }
+                            else // newPosition < oldPosition
+                            {
+                                CurrentFolder.Items.Insert(newPosition, itemInfo.Item);
+                                CurrentFolder.Items.RemoveAt(oldPosition + 1);
+                            }
+
+                            // TODO: The behaviour when "swapping" the last and first items might not be
+                            //       exactly what the user expects. Investigate making this more intuitive?
+
+                            RefreshFolder();
+
+                            // Start dragging the new Button that was generated during RefreshFolder().
+                            // Here's a cheap way to pull this off. Just replace the new one with the old one.
+                            int newInfoIndex = ItemDisplayInfos.FindIndex((s) => { return s.Item == itemInfo.Item; });
+
+                            mainGrid.Children.Remove(ItemDisplayInfos[newInfoIndex].ItemButton);
+                            mainGrid.Children.Remove(ItemDisplayInfos[newInfoIndex].ItemLabel);
+
+                            ItemDisplayInfos[newInfoIndex] = itemInfo;
+
+                            mainGrid.Children.Add(itemInfo.ItemButton);
+                            mainGrid.Children.Add(itemInfo.ItemLabel);
+                        }
+                    }
+                    else
+                    {
+                        if(System.Windows.Point.Subtract(currentMousePoint, itemInfo.InitialMousePosition).Length >= Config.PieItemDragSensitivity) // TODO: Implement custom tolerances
+                        {
+                            itemInfo.Dragging = true;
+                        }
+                    }
                 };
 
             // Create the context menu
@@ -622,6 +735,10 @@ namespace OvalDock
             public PieItem Item { get; set; }
             public Button ItemButton { get; set; }
             public Label ItemLabel { get; set; }
+            public bool MouseDown { get; set; } // If mouse holding onto it, but not necessarily dragging
+            public bool Dragging { get; set; } // If the item has explicitly started moving
+
+            public System.Windows.Point InitialMousePosition { get; set; }
         }
     }
 }
