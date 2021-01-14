@@ -305,6 +305,9 @@ namespace OvalDock
             OuterDisk.ContextMenu = new ContextMenu();
             OuterDisk.ContextMenu.Items.Add(addMenuItem);
 
+            OuterDisk.AllowDrop = true;
+            OuterDisk.Drop += Disk_Drop;
+
             mainGrid.Children.Add(OuterDisk);
         }
 
@@ -325,7 +328,41 @@ namespace OvalDock
 
             InnerDisk.MouseLeftButtonDown += InnerDisk_MouseLeftButtonDown;
 
+            InnerDisk.AllowDrop = true;
+            InnerDisk.Drop += Disk_Drop;
+
             mainGrid.Children.Add(InnerDisk);
+        }
+
+        // Drag and drop capability, automagically add file/folder.
+        // Used for both the inner and outer disks.
+        private void Disk_Drop(object sender, DragEventArgs e)
+        {
+            string[] files = (string[])e.Data.GetData(DataFormats.FileDrop);
+
+            if (files != null && files.Length != 0)
+            {
+                // TODO: This feels inefficient, but PieItemSettingsWindow(null, ...) feels like something might break
+                FileItemType type;
+
+                if (File.Exists(files[0]))
+                {
+                    type = FileItemType.File;
+                }
+                else if(Directory.Exists(files[0]))
+                {
+                    type = FileItemType.Folder;
+                }
+                else
+                {
+                    return;
+                }
+
+                PieItem newItem = new FileItem(false, null, false, null, files[0], null, type);
+                CurrentFolder.Items.Add(newItem);
+                RefreshFolder();
+                Config.SaveItems(RootFolder);
+            }
         }
 
         // Add items based on folder's items.
