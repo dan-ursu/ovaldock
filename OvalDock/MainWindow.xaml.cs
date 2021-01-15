@@ -102,6 +102,10 @@ namespace OvalDock
             var result = RegisterHotKey(handle, HOTKEY_ID, Config.HotkeyModifiers, Config.Hotkey);
 
             // TODO: Handle result = false? Would this ever happen?
+            if(result == false)
+            {
+                MessageBox.Show("OvalDock could not register hotkey.");
+            }
         }
 
         // Also for handling hotkey
