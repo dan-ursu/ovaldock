@@ -50,8 +50,91 @@ namespace OvalDock
         public PieFolderItem RootFolder { get; private set; }
         public PieFolderItem CurrentFolder { get; private set; }
 
-        public List<Button> ItemButtons { get; }
-        public List<KeyValuePair<Button, Label>> ItemLabels { get; }
+        //public List<Button> ItemButtons { get; }
+        //public List<KeyValuePair<Button, Label>> ItemLabels { get; }
+
+        List<ItemDisplayInfo> ItemDisplayInfos { get; }
+
+        // The context menu to be shared between the inner and outer disks.
+        // Essentially, we create it once, then cache it forever.
+        // Should only ever call this using the property, not the raw value.
+        private ContextMenu _diskContextMenu = null;
+        private ContextMenu DiskContextMenu
+        {
+            get
+            {
+                if (_diskContextMenu == null)
+                {
+                    _diskContextMenu = new ContextMenu();
+                    
+                    MenuItem addMenuItem = new MenuItem();
+                    addMenuItem.Header = "Add item";
+                    addMenuItem.Click +=
+                        (s, e) =>
+                        {
+                            // TODO: This feels inefficient, but PieItemSettingsWindow(null, ...) feels like something might break
+                            PieItem newItem = new FileItem(false, null, false, null, null, null, FileItemType.File);
+                            PieItemSettingsWindow pieItemSettingsWindow = new PieItemSettingsWindow(newItem, CurrentFolder);
+                            pieItemSettingsWindow.ShowDialog();
+
+                            if (pieItemSettingsWindow.Saved)
+                            {
+                                CurrentFolder.Items.Add(pieItemSettingsWindow.NewPieItem);
+                                RefreshFolder();
+                                Config.SaveItems(RootFolder);
+                            }
+                        };
+
+                    _diskContextMenu.Items.Add(addMenuItem);
+
+
+                    // TODO: There is a little bit of code duplication between this and the NotifyIcon (Windows Forms)
+                    //       Sort it out at some point.
+                    MenuItem programSettingsMenuItem = new MenuItem();
+                    programSettingsMenuItem.Header = "Dock settings";
+                    programSettingsMenuItem.Click +=
+                        (s, e) =>
+                        {
+                            if (ProgramSettingsWindow.IsWindowActive)
+                            {
+                                MessageBox.Show("Settings window already active");
+                                return;
+                            }
+                            ProgramSettingsWindow settingsWindow = new ProgramSettingsWindow(this);
+                            settingsWindow.Show();
+                        };
+
+                    _diskContextMenu.Items.Add(programSettingsMenuItem);
+
+
+                    MenuItem hideMenuItem = new MenuItem();
+                    hideMenuItem.Header = "Hide";
+                    hideMenuItem.Click +=
+                    (s, e) =>
+                    {
+                        ToggleVisibility();
+                    };
+
+                    _diskContextMenu.Items.Add(hideMenuItem);
+
+
+                    MenuItem quitMenuItem = new MenuItem();
+                    quitMenuItem.Header = "Quit";
+                    quitMenuItem.Click +=
+                    (s, e) =>
+                    {
+                        //Close(); // Close() only shuts down the current window. This doesn't work if there are other windows open.
+                        Application.Current.Shutdown();
+                    };
+
+                    _diskContextMenu.Items.Add(quitMenuItem);
+                }
+
+                return _diskContextMenu;
+            }
+        }
+
+
 
         // Unfortunately have to rely on Windows Forms for this.
         // .csproj was modified to use Windows Forms as well.
@@ -67,8 +150,10 @@ namespace OvalDock
 
             CurrentFolder = RootFolder;
 
-            ItemButtons = new List<Button>();
-            ItemLabels = new List<KeyValuePair<Button, Label>>();
+            ItemDisplayInfos = new List<ItemDisplayInfo>();
+
+            //ItemButtons = new List<Button>();
+            //ItemLabels = new List<KeyValuePair<Button, Label>>();
 
             ResizeWindow();
 
@@ -96,6 +181,10 @@ namespace OvalDock
             var result = RegisterHotKey(handle, HOTKEY_ID, Config.HotkeyModifiers, Config.Hotkey);
 
             // TODO: Handle result = false? Would this ever happen?
+            if(result == false)
+            {
+                MessageBox.Show("OvalDock could not register hotkey.");
+            }
         }
 
         // Also for handling hotkey
@@ -186,7 +275,7 @@ namespace OvalDock
                 };
 
             System.Windows.Forms.ToolStripMenuItem settingsItem = new System.Windows.Forms.ToolStripMenuItem();
-            settingsItem.Text = "Settings";
+            settingsItem.Text = "Dock settings";
             settingsItem.Click +=
                 (s, e) =>
                 {
@@ -277,27 +366,10 @@ namespace OvalDock
             //outerDisk.MouseRightButtonUp += OuterDisk_MouseRightButtonUp;
             OuterDisk.MouseLeftButtonDown += OuterDisk_MouseLeftButtonDown;
 
-            // Create the context menu
-            MenuItem addMenuItem = new MenuItem();
-            addMenuItem.Header = "Add";
-            addMenuItem.Click +=
-                (s, e) =>
-                {
-                    // TODO: This feels inefficient, but PieItemSettingsWindow(null, ...) feels like something might break
-                    PieItem newItem = new FileItem(false, null, false, null, null, null, FileItemType.File);
-                    PieItemSettingsWindow pieItemSettingsWindow = new PieItemSettingsWindow(newItem, CurrentFolder);
-                    pieItemSettingsWindow.ShowDialog();
+            OuterDisk.ContextMenu = DiskContextMenu;
 
-                    if (pieItemSettingsWindow.Saved)
-                    {
-                        CurrentFolder.Items.Add(pieItemSettingsWindow.NewPieItem);
-                        RefreshFolder();
-                        Config.SaveItems(RootFolder);
-                    }
-                };
-
-            OuterDisk.ContextMenu = new ContextMenu();
-            OuterDisk.ContextMenu.Items.Add(addMenuItem);
+            OuterDisk.AllowDrop = true;
+            OuterDisk.Drop += Disk_Drop;
 
             mainGrid.Children.Add(OuterDisk);
         }
@@ -319,7 +391,43 @@ namespace OvalDock
 
             InnerDisk.MouseLeftButtonDown += InnerDisk_MouseLeftButtonDown;
 
+            InnerDisk.ContextMenu = DiskContextMenu;
+
+            InnerDisk.AllowDrop = true;
+            InnerDisk.Drop += Disk_Drop;
+
             mainGrid.Children.Add(InnerDisk);
+        }
+
+        // Drag and drop capability, automagically add file/folder.
+        // Used for both the inner and outer disks.
+        private void Disk_Drop(object sender, DragEventArgs e)
+        {
+            string[] files = (string[])e.Data.GetData(DataFormats.FileDrop);
+
+            if (files != null && files.Length != 0)
+            {
+                // TODO: This feels inefficient, but PieItemSettingsWindow(null, ...) feels like something might break
+                FileItemType type;
+
+                if (File.Exists(files[0]))
+                {
+                    type = FileItemType.File;
+                }
+                else if(Directory.Exists(files[0]))
+                {
+                    type = FileItemType.Folder;
+                }
+                else
+                {
+                    return;
+                }
+
+                PieItem newItem = new FileItem(false, null, false, null, files[0], null, type);
+                CurrentFolder.Items.Add(newItem);
+                RefreshFolder();
+                Config.SaveItems(RootFolder);
+            }
         }
 
         // Add items based on folder's items.
@@ -385,121 +493,233 @@ namespace OvalDock
             }
         }
 
-        // TODO: This whole keeping track of buttons business is a bit ugly. Redo it at some point.
-        public void UpdateItemButtonAppearance(Button itemButton, int number, int totalItems)
+        // This is used to update the variable appearance of the items.
+        // Ex: name, icon, user-configurable sizes, etc...
+        private void UpdateItemAppearance(ItemDisplayInfo itemInfo, int number, int totalItems)
         {
-            itemButton.Width = Config.PieItemSize;
-            itemButton.Height = Config.PieItemSize;
-            itemButton.Opacity = Config.PieItemNormalOpacity;
+            itemInfo.ItemButton.Width = Config.PieItemSize;
+            itemInfo.ItemButton.Height = Config.PieItemSize;
+            itemInfo.ItemButton.Opacity = Config.PieItemNormalOpacity;
 
             // To be spread evenly in a circle.
             var buttonMargin = new Thickness();
             buttonMargin.Left = Config.PieItemRadiusFromCenter * Math.Cos(number * 2 * Math.PI / totalItems);
             buttonMargin.Top = Config.PieItemRadiusFromCenter * Math.Sin(number * 2 * Math.PI / totalItems);
-            itemButton.Margin = buttonMargin;
+            itemInfo.ItemButton.Margin = buttonMargin;
+
+            // This was initialized as an Image() during AddPieItem().
+            ((System.Windows.Controls.Image)itemInfo.ItemButton.Content).Source = itemInfo.Item.Icon.ImageBitmapSource;
+
+
+
+            var labelMargin = new Thickness();
+            labelMargin.Left = itemInfo.ItemButton.Margin.Left;
+            labelMargin.Top = itemInfo.ItemButton.Margin.Top + Config.PieItemSize + Config.PieItemLabelPadding; // TODO: Figure out proper padding.
+            itemInfo.ItemLabel.Margin = labelMargin;
+
+            itemInfo.ItemLabel.FontSize = Config.PieItemLabelSize;
+
+            itemInfo.ItemLabel.Content = (itemInfo.Item.Name == null) ? "" : itemInfo.Item.Name;
         }
 
-        public void UpdateItemButtonAppearance()
+        public void UpdateItemAppearance()
         {
-            for (int i = 0; i < ItemButtons.Count; i++)
+            for (int i = 0; i < ItemDisplayInfos.Count; i++)
             {
-                UpdateItemButtonAppearance(ItemButtons[i], i, ItemButtons.Count);
+                UpdateItemAppearance(ItemDisplayInfos[i], i, ItemDisplayInfos.Count);
             }
         }
 
         private void ClearItems()
         {
-            foreach (Button button in ItemButtons)
+            foreach (ItemDisplayInfo info in ItemDisplayInfos)
             {
-                mainGrid.Children.Remove(button);
+                mainGrid.Children.Remove(info.ItemButton);
+                mainGrid.Children.Remove(info.ItemLabel);
             }
 
-            ItemButtons.Clear();
-
-            // This might be slightly unnecessary, but might as well remove labels for extra safety.
-            // I suspect there will never be any labels anyways though.
-            foreach (var kvp in ItemLabels)
-            {
-                mainGrid.Children.Remove(kvp.Value);
-            }
-
-            ItemLabels.Clear();
+            ItemDisplayInfos.Clear();
         }
 
         // This is a bit more complicated.
         // We have to account for all the stuff that hovering over/pressing/etc... on an item does.
         private void AddPieItem(PieItem pieItem, int number, int totalItems)
         {
+            ItemDisplayInfo itemInfo = new ItemDisplayInfo();
+
+            // The PieItem
+            itemInfo.Item = pieItem;
+
+
+            // The Button control to be used in the main window.
+            // Here, we set the non-user-configurable options.
+            itemInfo.ItemButton = new Button();
+
+            itemInfo.ItemButton.HorizontalAlignment = HorizontalAlignment.Center;
+            itemInfo.ItemButton.VerticalAlignment = VerticalAlignment.Center;
+
+            itemInfo.ItemButton.Background = System.Windows.Media.Brushes.Transparent;
+            itemInfo.ItemButton.BorderBrush = System.Windows.Media.Brushes.Transparent;
+
+            // Currently just a blank image, will actually be set to something later on.
             var itemImage = new System.Windows.Controls.Image();
-            itemImage.Source = pieItem.Icon.ImageBitmapSource;
+            itemInfo.ItemButton.Content = itemImage;
 
 
-            var itemButton = new Button();
+            // The Label control to be used in the main window.
+            itemInfo.ItemLabel = new Label();
 
-            itemButton.Content = itemImage;
+            itemInfo.ItemLabel.HorizontalAlignment = HorizontalAlignment.Center;
+            itemInfo.ItemLabel.VerticalAlignment = VerticalAlignment.Center;
 
-            UpdateItemButtonAppearance(itemButton, number, totalItems);
+            // This fixes the flashing button issue if the mouse is on top of both the button and the label.
+            itemInfo.ItemLabel.IsHitTestVisible = false;
 
-            itemButton.HorizontalAlignment = HorizontalAlignment.Center;
-            itemButton.VerticalAlignment = VerticalAlignment.Center;
-
-            itemButton.Background = System.Windows.Media.Brushes.Transparent;
-            itemButton.BorderBrush = System.Windows.Media.Brushes.Transparent;
+            // Invisible by default. Will activate only on mouse hover on button.
+            itemInfo.ItemLabel.Visibility = Visibility.Hidden;
 
 
-            // All the button behaviour handled here.
-            itemButton.Click +=
+            UpdateItemAppearance(itemInfo, number, totalItems);
+
+            // TODO: Make labels always appear on top of buttons.
+            mainGrid.Children.Add(itemInfo.ItemLabel);
+
+
+            itemInfo.ItemButton.MouseEnter +=
                 (s, e) =>
                 {
-                    pieItem.LeftClick(this);
+                    itemInfo.ItemLabel.Visibility = Visibility.Visible;
                 };
 
-            itemButton.MouseEnter +=
+            itemInfo.ItemButton.MouseLeave +=
                 (s, e) =>
                 {
-                    // Add a label corresponding to the button.
-                    var label = new System.Windows.Controls.Label();
-
-                    var labelMargin = new Thickness();
-                    labelMargin.Left = itemButton.Margin.Left;
-                    labelMargin.Top = itemButton.Margin.Top + Config.PieItemSize + Config.PieItemLabelPadding; // TODO: Figure out proper padding.
-
-                    label.Margin = labelMargin;
-
-                    label.HorizontalAlignment = HorizontalAlignment.Center;
-                    label.VerticalAlignment = VerticalAlignment.Center;
-
-                    label.Content = (pieItem.Name == null) ? "" : pieItem.Name;
-
-                    label.FontSize = Config.PieItemLabelSize;
-
-                    ItemLabels.Add(new KeyValuePair<Button, Label>(itemButton, label));
-
-                    // This fixes the flashing button issue if the mouse is on top of both the button and the label.
-                    label.IsHitTestVisible = false;
-
-                    mainGrid.Children.Add(label);
+                    itemInfo.ItemLabel.Visibility = Visibility.Hidden;
                 };
 
-            itemButton.MouseLeave +=
+            // Handle custom clicking and dragging in these next three functions.
+            // MouseDown just means the mouse has been pressed down on the button.
+            // Dragging means the mouse has moved past the given threshold while MouseDown and we started visually dragging.
+            itemInfo.ItemButton.PreviewMouseLeftButtonDown +=
                 (s, e) =>
                 {
-                    // Delete the label corresponding to the button.
-                    foreach (KeyValuePair<Button, Label> itemLabel in ItemLabels)
+                    itemInfo.MouseDown = true;
+
+                    itemInfo.InitialMousePosition = Mouse.GetPosition(mainGrid);
+                };
+
+            itemInfo.ItemButton.PreviewMouseLeftButtonUp +=
+                (s, e) =>
+                {
+                    if(itemInfo.Dragging)
                     {
-                        if (itemLabel.Key == itemButton)
-                        {
-                            mainGrid.Children.Remove(itemLabel.Value);
-                        }
+                        RefreshFolder();
+                        Config.SaveItems(RootFolder);
+                    }
+                    else
+                    {
+                        itemInfo.Item.LeftClick(this);
                     }
 
-                    // I suspect this might be a memory leak if we don't include this line?
-                    ItemLabels.RemoveAll((kvp) => { return kvp.Key == itemButton; });
+                    itemInfo.MouseDown = false;
+                    itemInfo.Dragging = false;
+
+                    itemInfo.ItemButton.RenderTransform = Transform.Identity;
+                    itemInfo.ItemLabel.RenderTransform = Transform.Identity;
+                };
+
+            itemInfo.ItemButton.PreviewMouseMove +=
+                (s, e) =>
+                {
+                    if(!itemInfo.MouseDown)
+                    {
+                        return;
+                    }
+
+                    var currentMousePoint = Mouse.GetPosition(mainGrid);
+
+                    if (itemInfo.Dragging)
+                    {
+                        // TODO: Constantly creating a bunch of new objects here feels inefficient.
+                        var offset = new TranslateTransform(currentMousePoint.X - itemInfo.InitialMousePosition.X, currentMousePoint.Y - itemInfo.InitialMousePosition.Y);
+
+                        itemInfo.ItemButton.RenderTransform = offset;
+                        itemInfo.ItemLabel.RenderTransform = offset;
+
+
+                        // TODO: Handle item swapping here.
+                        System.Windows.Point centerPoint = new System.Windows.Point(mainGrid.Width / 2, mainGrid.Height / 2);
+                        double angle = Math.Atan2(currentMousePoint.Y - centerPoint.Y, currentMousePoint.X - centerPoint.X);
+
+                        // Make between $0$ and $2\pi$
+                        if(angle < 0)
+                            angle += 2*Math.PI;
+
+                        // itemInfo.ItemLabel.Content = angle.ToString();
+
+                        // You're gonna need to draw a picture for this.
+                        // Sorry ahead of time.
+                        int oldPosition = CurrentFolder.Items.IndexOf(itemInfo.Item);
+                        int halfSpaces = (int)(2 * angle / (2 * Math.PI / CurrentFolder.Items.Count));
+
+                        int newPosition;
+
+                        // Probably will never get strict inequality, but safety for roundoff nonsense.
+                        if (halfSpaces <= 0 || halfSpaces >= 2 * CurrentFolder.Items.Count - 1)
+                        {
+                            newPosition = 0;
+                        }
+                        else
+                        {
+                            newPosition = (halfSpaces + 1) / 2;
+                        }
+
+                        //itemInfo.ItemLabel.Content = oldPosition.ToString();
+
+                        // Swap oldPosition and newPosition
+                        if(newPosition != oldPosition)
+                        {
+                            if(oldPosition < newPosition)
+                            {
+                                CurrentFolder.Items.Insert(newPosition + 1, itemInfo.Item);
+                                CurrentFolder.Items.RemoveAt(oldPosition);
+                            }
+                            else // newPosition < oldPosition
+                            {
+                                CurrentFolder.Items.Insert(newPosition, itemInfo.Item);
+                                CurrentFolder.Items.RemoveAt(oldPosition + 1);
+                            }
+
+                            // TODO: The behaviour when "swapping" the last and first items might not be
+                            //       exactly what the user expects. Investigate making this more intuitive?
+
+                            RefreshFolder();
+
+                            // Start dragging the new Button that was generated during RefreshFolder().
+                            // Here's a cheap way to pull this off. Just replace the new one with the old one.
+                            int newInfoIndex = ItemDisplayInfos.FindIndex((s) => { return s.Item == itemInfo.Item; });
+
+                            mainGrid.Children.Remove(ItemDisplayInfos[newInfoIndex].ItemButton);
+                            mainGrid.Children.Remove(ItemDisplayInfos[newInfoIndex].ItemLabel);
+
+                            ItemDisplayInfos[newInfoIndex] = itemInfo;
+
+                            mainGrid.Children.Add(itemInfo.ItemButton);
+                            mainGrid.Children.Add(itemInfo.ItemLabel);
+                        }
+                    }
+                    else
+                    {
+                        if(System.Windows.Point.Subtract(currentMousePoint, itemInfo.InitialMousePosition).Length >= Config.PieItemDragSensitivity) // TODO: Implement custom tolerances
+                        {
+                            itemInfo.Dragging = true;
+                        }
+                    }
                 };
 
             // Create the context menu
             MenuItem settingsMenuItem = new MenuItem();
-            settingsMenuItem.Header = "Settings";
+            settingsMenuItem.Header = "Item settings";
             settingsMenuItem.Click +=
                 (s, e) =>
                 {
@@ -531,15 +751,15 @@ namespace OvalDock
                     Config.SaveItems(RootFolder);
                 };
 
-            itemButton.ContextMenu = new ContextMenu();
-            itemButton.ContextMenu.Items.Add(settingsMenuItem);
-            itemButton.ContextMenu.Items.Add(removeMenuItem);
+            itemInfo.ItemButton.ContextMenu = new ContextMenu();
+            itemInfo.ItemButton.ContextMenu.Items.Add(settingsMenuItem);
+            itemInfo.ItemButton.ContextMenu.Items.Add(removeMenuItem);
 
 
             //TODO: Figure out transparency of background/border on hover.
 
-            ItemButtons.Add(itemButton);
-            mainGrid.Children.Add(itemButton);
+            ItemDisplayInfos.Add(itemInfo);
+            mainGrid.Children.Add(itemInfo.ItemButton);
         }
 
         private void MainWindow_LocationChanged(object sender, EventArgs e)
@@ -553,9 +773,9 @@ namespace OvalDock
             InnerDisk.Opacity = Config.InnerDiskMouseDownOpacity;
             OuterDisk.Opacity = Config.OuterDiskMouseDownOpacity;
 
-            foreach(Button button in ItemButtons)
+            foreach(ItemDisplayInfo info in ItemDisplayInfos)
             {
-                button.Opacity = Config.PieItemMouseDownOpacity;
+                info.ItemButton.Opacity = Config.PieItemMouseDownOpacity;
             }
 
             dragged = false;
@@ -569,9 +789,9 @@ namespace OvalDock
             InnerDisk.Opacity = Config.InnerDiskNormalOpacity;
             OuterDisk.Opacity = Config.OuterDiskNormalOpacity;
 
-            foreach (Button button in ItemButtons)
+            foreach (ItemDisplayInfo info in ItemDisplayInfos)
             {
-                button.Opacity = Config.PieItemNormalOpacity;
+                info.ItemButton.Opacity = Config.PieItemNormalOpacity;
             }
 
             // Hacky way to handle mouse click on the inner disk.
@@ -596,9 +816,9 @@ namespace OvalDock
             InnerDisk.Opacity = Config.InnerDiskMouseDownOpacity;
             OuterDisk.Opacity = Config.OuterDiskMouseDownOpacity;
 
-            foreach (Button button in ItemButtons)
+            foreach (ItemDisplayInfo info in ItemDisplayInfos)
             {
-                button.Opacity = Config.PieItemMouseDownOpacity;
+                info.ItemButton.Opacity = Config.PieItemMouseDownOpacity;
             }
 
             DragMove();
@@ -606,10 +826,21 @@ namespace OvalDock
             InnerDisk.Opacity = Config.InnerDiskNormalOpacity;
             OuterDisk.Opacity = Config.OuterDiskNormalOpacity;
 
-            foreach (Button button in ItemButtons)
+            foreach (ItemDisplayInfo info in ItemDisplayInfos)
             {
-                button.Opacity = Config.PieItemNormalOpacity;
+                info.ItemButton.Opacity = Config.PieItemNormalOpacity;
             }
+        }
+
+        private struct ItemDisplayInfo
+        {
+            public PieItem Item { get; set; }
+            public Button ItemButton { get; set; }
+            public Label ItemLabel { get; set; }
+            public bool MouseDown { get; set; } // If mouse holding onto it, but not necessarily dragging
+            public bool Dragging { get; set; } // If the item has explicitly started moving
+
+            public System.Windows.Point InitialMousePosition { get; set; }
         }
     }
 }
