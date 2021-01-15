@@ -438,10 +438,21 @@ namespace OvalDock
 
             CurrentFolder = folder;
 
-            // Add items
+            // Create display info
             for (int i = 0; i < folder.Items.Count; i++)
             {
-                AddPieItem(folder.Items[i], i, folder.Items.Count);
+                CreateDisplayInfo(folder.Items[i], i, folder.Items.Count);
+            }
+
+            // Create all buttons first and THEN labels, so labels are always on top.
+            foreach(ItemDisplayInfo info in ItemDisplayInfos)
+            {
+                mainGrid.Children.Add(info.ItemButton);
+            }
+
+            foreach (ItemDisplayInfo info in ItemDisplayInfos)
+            {
+                mainGrid.Children.Add(info.ItemLabel);
             }
 
             // Change center icon
@@ -507,7 +518,7 @@ namespace OvalDock
             buttonMargin.Top = Config.PieItemRadiusFromCenter * Math.Sin(number * 2 * Math.PI / totalItems);
             itemInfo.ItemButton.Margin = buttonMargin;
 
-            // This was initialized as an Image() during AddPieItem().
+            // This was initialized as an Image() during CreateDisplayInfo().
             ((System.Windows.Controls.Image)itemInfo.ItemButton.Content).Source = itemInfo.Item.Icon.ImageBitmapSource;
 
 
@@ -543,7 +554,7 @@ namespace OvalDock
 
         // This is a bit more complicated.
         // We have to account for all the stuff that hovering over/pressing/etc... on an item does.
-        private void AddPieItem(PieItem pieItem, int number, int totalItems)
+        private void CreateDisplayInfo(PieItem pieItem, int number, int totalItems)
         {
             ItemDisplayInfo itemInfo = new ItemDisplayInfo();
 
@@ -580,9 +591,6 @@ namespace OvalDock
 
 
             UpdateItemAppearance(itemInfo, number, totalItems);
-
-            // TODO: Make labels always appear on top of buttons.
-            mainGrid.Children.Add(itemInfo.ItemLabel);
 
 
             itemInfo.ItemButton.MouseEnter +=
@@ -759,7 +767,6 @@ namespace OvalDock
             //TODO: Figure out transparency of background/border on hover.
 
             ItemDisplayInfos.Add(itemInfo);
-            mainGrid.Children.Add(itemInfo.ItemButton);
         }
 
         private void MainWindow_LocationChanged(object sender, EventArgs e)
