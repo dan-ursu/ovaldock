@@ -55,6 +55,85 @@ namespace OvalDock
 
         List<ItemDisplayInfo> ItemDisplayInfos { get; }
 
+        // The context menu to be shared between the inner and outer disks.
+        // Essentially, we create it once, then cache it forever.
+        // Should only ever call this using the property, not the raw value.
+        private ContextMenu _diskContextMenu = null;
+        private ContextMenu DiskContextMenu
+        {
+            get
+            {
+                if (_diskContextMenu == null)
+                {
+                    _diskContextMenu = new ContextMenu();
+                    
+                    MenuItem addMenuItem = new MenuItem();
+                    addMenuItem.Header = "Add item";
+                    addMenuItem.Click +=
+                        (s, e) =>
+                        {
+                            // TODO: This feels inefficient, but PieItemSettingsWindow(null, ...) feels like something might break
+                            PieItem newItem = new FileItem(false, null, false, null, null, null, FileItemType.File);
+                            PieItemSettingsWindow pieItemSettingsWindow = new PieItemSettingsWindow(newItem, CurrentFolder);
+                            pieItemSettingsWindow.ShowDialog();
+
+                            if (pieItemSettingsWindow.Saved)
+                            {
+                                CurrentFolder.Items.Add(pieItemSettingsWindow.NewPieItem);
+                                RefreshFolder();
+                                Config.SaveItems(RootFolder);
+                            }
+                        };
+
+                    _diskContextMenu.Items.Add(addMenuItem);
+
+
+                    // TODO: There is a little bit of code duplication between this and the NotifyIcon (Windows Forms)
+                    //       Sort it out at some point.
+                    MenuItem programSettingsMenuItem = new MenuItem();
+                    programSettingsMenuItem.Header = "Dock settings";
+                    programSettingsMenuItem.Click +=
+                        (s, e) =>
+                        {
+                            if (ProgramSettingsWindow.IsWindowActive)
+                            {
+                                MessageBox.Show("Settings window already active");
+                                return;
+                            }
+                            ProgramSettingsWindow settingsWindow = new ProgramSettingsWindow(this);
+                            settingsWindow.Show();
+                        };
+
+                    _diskContextMenu.Items.Add(programSettingsMenuItem);
+
+
+                    MenuItem hideMenuItem = new MenuItem();
+                    hideMenuItem.Header = "Hide";
+                    hideMenuItem.Click +=
+                    (s, e) =>
+                    {
+                        ToggleVisibility();
+                    };
+
+                    _diskContextMenu.Items.Add(hideMenuItem);
+
+
+                    MenuItem quitMenuItem = new MenuItem();
+                    quitMenuItem.Header = "Quit";
+                    quitMenuItem.Click +=
+                    (s, e) =>
+                    {
+                        //Close(); // Close() only shuts down the current window. This doesn't work if there are other windows open.
+                        Application.Current.Shutdown();
+                    };
+
+                    _diskContextMenu.Items.Add(quitMenuItem);
+                }
+
+                return _diskContextMenu;
+            }
+        }
+
 
 
         // Unfortunately have to rely on Windows Forms for this.
@@ -196,7 +275,7 @@ namespace OvalDock
                 };
 
             System.Windows.Forms.ToolStripMenuItem settingsItem = new System.Windows.Forms.ToolStripMenuItem();
-            settingsItem.Text = "Settings";
+            settingsItem.Text = "Dock settings";
             settingsItem.Click +=
                 (s, e) =>
                 {
@@ -287,27 +366,7 @@ namespace OvalDock
             //outerDisk.MouseRightButtonUp += OuterDisk_MouseRightButtonUp;
             OuterDisk.MouseLeftButtonDown += OuterDisk_MouseLeftButtonDown;
 
-            // Create the context menu
-            MenuItem addMenuItem = new MenuItem();
-            addMenuItem.Header = "Add";
-            addMenuItem.Click +=
-                (s, e) =>
-                {
-                    // TODO: This feels inefficient, but PieItemSettingsWindow(null, ...) feels like something might break
-                    PieItem newItem = new FileItem(false, null, false, null, null, null, FileItemType.File);
-                    PieItemSettingsWindow pieItemSettingsWindow = new PieItemSettingsWindow(newItem, CurrentFolder);
-                    pieItemSettingsWindow.ShowDialog();
-
-                    if (pieItemSettingsWindow.Saved)
-                    {
-                        CurrentFolder.Items.Add(pieItemSettingsWindow.NewPieItem);
-                        RefreshFolder();
-                        Config.SaveItems(RootFolder);
-                    }
-                };
-
-            OuterDisk.ContextMenu = new ContextMenu();
-            OuterDisk.ContextMenu.Items.Add(addMenuItem);
+            OuterDisk.ContextMenu = DiskContextMenu;
 
             OuterDisk.AllowDrop = true;
             OuterDisk.Drop += Disk_Drop;
@@ -331,6 +390,8 @@ namespace OvalDock
             InnerDisk.VerticalAlignment = VerticalAlignment.Center;
 
             InnerDisk.MouseLeftButtonDown += InnerDisk_MouseLeftButtonDown;
+
+            InnerDisk.ContextMenu = DiskContextMenu;
 
             InnerDisk.AllowDrop = true;
             InnerDisk.Drop += Disk_Drop;
@@ -658,7 +719,7 @@ namespace OvalDock
 
             // Create the context menu
             MenuItem settingsMenuItem = new MenuItem();
-            settingsMenuItem.Header = "Settings";
+            settingsMenuItem.Header = "Item settings";
             settingsMenuItem.Click +=
                 (s, e) =>
                 {
