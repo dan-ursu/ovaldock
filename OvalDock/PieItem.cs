@@ -11,6 +11,7 @@ namespace OvalDock
 {
     public abstract class PieItem
     {
+        // TODO: I feel like modifying this directly should clear the icon cache
         public bool IsCustomIcon { get; private set; }
         public bool IsCustomName { get; private set; }
 
@@ -44,11 +45,19 @@ namespace OvalDock
         public PieItem(bool customName, string label, bool customIcon, string iconPath)
         {
             IsCustomName = customName;
-            Name = label;
+
+            if(IsCustomName)
+            {
+                Name = label;
+            }
 
             IsCustomIcon = customIcon;
             Icon = new CachedImage();
-            Icon.ImagePath = iconPath;
+
+            if(IsCustomIcon)
+            {
+                Icon.ImagePath = iconPath;
+            }
         }
 
         // This is again specific on type of item.
