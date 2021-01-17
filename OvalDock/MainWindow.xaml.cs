@@ -261,7 +261,7 @@ namespace OvalDock
         private void CreateNotifyIcon()
         {
             // TODO: Make a proper icon for this.
-            notifyIcon.Icon = SystemIcons.Application;
+            notifyIcon.Icon = Properties.Resources.OvalDock_256x256;
             notifyIcon.Text = Config.ProgramName;
             notifyIcon.Visible = true;
 
