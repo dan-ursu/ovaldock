@@ -183,6 +183,7 @@ namespace OvalDock
             // TODO: Handle result = false? Would this ever happen?
             if(result == false)
             {
+                // TODO: Use Config.cs Program Name, or scrap that altogether. Will figure out later.
                 MessageBox.Show("OvalDock could not register hotkey.");
             }
         }
