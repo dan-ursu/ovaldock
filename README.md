@@ -1,5 +1,9 @@
 # OvalDock by Dan Ursu
 
+The newest version can be downloaded from here:
+
+https://github.com/dan-ursu/OvalDock/releases/latest
+
 The TLDR is open tutorial.jpg
 
 
