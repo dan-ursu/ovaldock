@@ -1,4 +1,4 @@
-# OvalDock by Dan Ursu
+# OvalDock
 
 The newest version can be downloaded from here:
 
