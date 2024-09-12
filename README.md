@@ -1,10 +1,6 @@
 # OvalDock
 
-The newest version can be downloaded from here:
-
-https://github.com/dan-ursu/OvalDock/releases/latest
-
-The TLDR is open tutorial.jpg
+Graphical program that creates a customizable circular dock around your mouse cursor, supporting files, shortcuts, links, and nested folders.
 
 
 ## About
@@ -24,7 +20,9 @@ OvalDock aims to make some necessary improvements to the original Circle Dock. W
 * It (mostly) uses WPF as opposed to the older Windows Forms. In particular, it is much better at handling high resolution scaling. Circle Dock would end up looking "pixellated".
 
 
-## Installation
+## Download and Installation
+
+The newest version can be found here: https://github.com/dan-ursu/OvalDock/releases/latest
 
 Just copy the OvalDock folder anywhere that is convenient. To launch OvalDock, just run OvalDock.exe.
 
